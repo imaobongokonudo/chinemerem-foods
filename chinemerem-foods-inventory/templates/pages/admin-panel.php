@@ -214,11 +214,11 @@ jQuery(document).ready(function($) {
         btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Adding...');
         
         $.ajax({
-            url: CFI.ajax_url,
+            url: cfiData.ajaxUrl,
             type: 'POST',
             data: {
                 action: 'cfi_add_product',
-                nonce: CFI.nonce,
+                nonce: cfiData.nonce,
                 name: productName,
                 price: productPrice
             },
@@ -269,11 +269,11 @@ jQuery(document).ready(function($) {
         btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Saving...');
         
         $.ajax({
-            url: CFI.ajax_url,
+            url: cfiData.ajaxUrl,
             type: 'POST',
             data: {
                 action: 'cfi_update_product',
-                nonce: CFI.nonce,
+                nonce: cfiData.nonce,
                 id: form.find('[name="id"]').val(),
                 name: form.find('[name="name"]').val(),
                 price: form.find('[name="price"]').val()
@@ -303,11 +303,11 @@ jQuery(document).ready(function($) {
         var row = $(this).closest('tr');
         
         $.ajax({
-            url: CFI.ajax_url,
+            url: cfiData.ajaxUrl,
             type: 'POST',
             data: {
                 action: 'cfi_delete_product',
-                nonce: CFI.nonce,
+                nonce: cfiData.nonce,
                 id: id
             },
             success: function(response) {
@@ -334,11 +334,11 @@ jQuery(document).ready(function($) {
         btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>');
         
         $.ajax({
-            url: CFI.ajax_url,
+            url: cfiData.ajaxUrl,
             type: 'POST',
             data: {
                 action: 'cfi_add_debtor',
-                nonce: CFI.nonce,
+                nonce: cfiData.nonce,
                 name: form.find('[name="name"]').val(),
                 phone: form.find('[name="phone"]').val()
             },
@@ -361,11 +361,11 @@ jQuery(document).ready(function($) {
         var row = $(this).closest('tr');
         
         $.ajax({
-            url: CFI.ajax_url,
+            url: cfiData.ajaxUrl,
             type: 'POST',
             data: {
                 action: 'cfi_delete_debtor',
-                nonce: CFI.nonce,
+                nonce: cfiData.nonce,
                 id: id
             },
             success: function(response) {
@@ -383,11 +383,11 @@ jQuery(document).ready(function($) {
         btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Creating...');
         
         $.ajax({
-            url: CFI.ajax_url,
+            url: cfiData.ajaxUrl,
             type: 'POST',
             data: {
                 action: 'cfi_download_backup',
-                nonce: CFI.nonce
+                nonce: cfiData.nonce
             },
             success: function(response) {
                 if (response.success && response.data.file_url) {
