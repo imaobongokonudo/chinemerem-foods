@@ -192,17 +192,42 @@ $is_super_admin = CFI_Auth::is_super_admin();
 
 <script>
 jQuery(document).ready(function($) {
+    // Debug - log to console if cfiData exists
+    console.log('Admin Panel Loaded');
+    console.log('cfiData available:', typeof cfiData !== 'undefined');
+    if (typeof cfiData !== 'undefined') {
+        console.log('AJAX URL:', cfiData.ajaxUrl);
+    }
+    
     // Ensure CFI.toast exists
     if (typeof CFI === 'undefined') {
         window.CFI = {};
     }
     if (!CFI.toast) {
         CFI.toast = {
-            success: function(msg) { alert('Success: ' + msg); },
-            error: function(msg) { alert('Error: ' + msg); },
-            warning: function(msg) { alert('Warning: ' + msg); },
-            info: function(msg) { alert('Info: ' + msg); }
+            success: function(msg) { alert('✓ ' + msg); },
+            error: function(msg) { alert('✗ Error: ' + msg); },
+            warning: function(msg) { alert('⚠ ' + msg); },
+            info: function(msg) { alert('ℹ ' + msg); }
         };
+    }
+    
+    // Helper function to get AJAX URL
+    function getAjaxUrl() {
+        if (typeof cfiData !== 'undefined' && cfiData.ajaxUrl) {
+            return cfiData.ajaxUrl;
+        }
+        // Fallback to WordPress default
+        return '<?php echo admin_url('admin-ajax.php'); ?>';
+    }
+    
+    // Helper function to get nonce
+    function getNonce() {
+        if (typeof cfiData !== 'undefined' && cfiData.nonce) {
+            return cfiData.nonce;
+        }
+        // Fallback - generate inline nonce
+        return '<?php echo wp_create_nonce('cfi_nonce'); ?>';
     }
     
     // Add Product
@@ -226,23 +251,23 @@ jQuery(document).ready(function($) {
         
         btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Adding...');
         
-        // Check if cfiData exists
-        if (typeof cfiData === 'undefined') {
-            CFI.toast.error('System error: cfiData not found. Please refresh the page.');
-            btn.prop('disabled', false).html(originalText);
-            return;
-        }
+        var ajaxUrl = getAjaxUrl();
+        var nonce = getNonce();
+        
+        console.log('Submitting product:', productName, productPrice);
+        console.log('AJAX URL:', ajaxUrl);
         
         $.ajax({
-            url: cfiData.ajaxUrl,
+            url: ajaxUrl,
             type: 'POST',
             data: {
                 action: 'cfi_add_product',
-                nonce: cfiData.nonce,
+                nonce: nonce,
                 name: productName,
                 price: productPrice
             },
             success: function(response) {
+                console.log('Response:', response);
                 if (response && response.success) {
                     CFI.toast.success(response.data && response.data.message ? response.data.message : 'Product added successfully');
                     form.find('[name="name"]').val('');
@@ -251,14 +276,16 @@ jQuery(document).ready(function($) {
                         location.reload();
                     }, 800);
                 } else {
-                    var errMsg = (response && response.data && response.data.message) ? response.data.message : 'Failed to add product';
+                    var errMsg = (response && response.data && response.data.message) ? response.data.message : 'Failed to add product. Check console for details.';
+                    console.error('Server error:', response);
                     CFI.toast.error(errMsg);
                     btn.prop('disabled', false).html(originalText);
                 }
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error, xhr.responseText);
-                CFI.toast.error('Network error: ' + (error || 'Please try again'));
+                console.error('AJAX Error:', status, error);
+                console.error('Response Text:', xhr.responseText);
+                CFI.toast.error('Network error: ' + (error || 'Please try again. Check console for details.'));
                 btn.prop('disabled', false).html(originalText);
             }
         });
@@ -291,11 +318,11 @@ jQuery(document).ready(function($) {
         btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Saving...');
         
         $.ajax({
-            url: cfiData.ajaxUrl,
+            url: getAjaxUrl(),
             type: 'POST',
             data: {
                 action: 'cfi_update_product',
-                nonce: cfiData.nonce,
+                nonce: getNonce(),
                 id: form.find('[name="id"]').val(),
                 name: form.find('[name="name"]').val(),
                 price: form.find('[name="price"]').val()
@@ -325,11 +352,11 @@ jQuery(document).ready(function($) {
         var row = $(this).closest('tr');
         
         $.ajax({
-            url: cfiData.ajaxUrl,
+            url: getAjaxUrl(),
             type: 'POST',
             data: {
                 action: 'cfi_delete_product',
-                nonce: cfiData.nonce,
+                nonce: getNonce(),
                 id: id
             },
             success: function(response) {
@@ -363,23 +390,17 @@ jQuery(document).ready(function($) {
         
         btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Adding...');
         
-        // Check if cfiData exists
-        if (typeof cfiData === 'undefined') {
-            CFI.toast.error('System error: cfiData not found. Please refresh the page.');
-            btn.prop('disabled', false).html(originalText);
-            return;
-        }
-        
         $.ajax({
-            url: cfiData.ajaxUrl,
+            url: getAjaxUrl(),
             type: 'POST',
             data: {
                 action: 'cfi_add_debtor',
-                nonce: cfiData.nonce,
+                nonce: getNonce(),
                 name: debtorName,
                 phone: debtorPhone
             },
             success: function(response) {
+                console.log('Debtor Response:', response);
                 if (response && response.success) {
                     CFI.toast.success(response.data && response.data.message ? response.data.message : 'Debtor added successfully');
                     setTimeout(function() {
@@ -387,12 +408,14 @@ jQuery(document).ready(function($) {
                     }, 800);
                 } else {
                     var errMsg = (response && response.data && response.data.message) ? response.data.message : 'Failed to add debtor';
+                    console.error('Server error:', response);
                     CFI.toast.error(errMsg);
                     btn.prop('disabled', false).html(originalText);
                 }
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error, xhr.responseText);
+                console.error('AJAX Error:', status, error);
+                console.error('Response Text:', xhr.responseText);
                 CFI.toast.error('Network error: ' + (error || 'Please try again'));
                 btn.prop('disabled', false).html(originalText);
             }
@@ -406,11 +429,11 @@ jQuery(document).ready(function($) {
         var row = $(this).closest('tr');
         
         $.ajax({
-            url: cfiData.ajaxUrl,
+            url: getAjaxUrl(),
             type: 'POST',
             data: {
                 action: 'cfi_delete_debtor',
-                nonce: cfiData.nonce,
+                nonce: getNonce(),
                 id: id
             },
             success: function(response) {
@@ -428,11 +451,11 @@ jQuery(document).ready(function($) {
         btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Creating...');
         
         $.ajax({
-            url: cfiData.ajaxUrl,
+            url: getAjaxUrl(),
             type: 'POST',
             data: {
                 action: 'cfi_download_backup',
-                nonce: cfiData.nonce
+                nonce: getNonce()
             },
             success: function(response) {
                 if (response.success && response.data.file_url) {
