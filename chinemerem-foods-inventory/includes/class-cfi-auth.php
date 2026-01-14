@@ -44,7 +44,8 @@ class CFI_Auth {
         }
         
         $username = isset($_POST['username']) ? sanitize_user(wp_unslash($_POST['username'])) : '';
-        $password = isset($_POST['password']) ? $_POST['password'] : '';
+        // Password is not unslashed or sanitized to preserve special characters for authentication
+        $password = isset($_POST['password']) ? $_POST['password'] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
         $remember = isset($_POST['remember']) ? (bool) $_POST['remember'] : false;
         
         if (empty($username) || empty($password)) {

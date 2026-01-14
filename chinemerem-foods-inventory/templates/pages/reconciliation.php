@@ -96,7 +96,12 @@ $is_admin = CFI_Auth::is_cfi_admin();
 
 <script>
 function reconcileDate(date) {
-    if (!confirm('Are you sure you want to reconcile ' + date + '?')) {
+    // Validate date format to prevent XSS
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        CFI.toast.error('Invalid date format');
+        return;
+    }
+    if (!confirm('<?php echo esc_js(__('Are you sure you want to reconcile this date?', 'chinemerem-foods')); ?> ' + date)) {
         return;
     }
     

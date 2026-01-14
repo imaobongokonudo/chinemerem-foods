@@ -69,7 +69,7 @@ $expenses_data = CFI_Expenses::get_by_date($today);
                         <?php else : ?>
                         <?php foreach ($expenses_data['expenses'] as $expense) : ?>
                         <tr>
-                            <td data-label="<?php esc_attr_e('Time', 'chinemerem-foods'); ?>"><?php echo esc_html(CFI_Products::format_number(0) ? substr($expense->expense_time, 0, 5) : $expense->expense_time); ?></td>
+                            <td data-label="<?php esc_attr_e('Time', 'chinemerem-foods'); ?>"><?php echo esc_html(substr($expense->expense_time, 0, 5)); ?></td>
                             <td data-label="<?php esc_attr_e('Description', 'chinemerem-foods'); ?>"><?php echo esc_html($expense->description); ?></td>
                             <td data-label="<?php esc_attr_e('Amount', 'chinemerem-foods'); ?>"><?php echo esc_html(CFI_Products::format_price($expense->amount)); ?></td>
                             <td data-label="<?php esc_attr_e('Staff', 'chinemerem-foods'); ?>"><?php echo esc_html($expense->staff_name); ?></td>

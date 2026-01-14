@@ -103,12 +103,12 @@ class CFI_Orders {
     }
     
     /**
-     * Generate unique order number
+     * Generate unique order number using cryptographically secure random bytes
      */
     private static function generate_order_number() {
         $prefix = 'CFI';
         $date = current_time('Ymd');
-        $random = strtoupper(substr(md5(uniqid(wp_rand(), true)), 0, 6));
+        $random = strtoupper(bin2hex(random_bytes(3)));
         return $prefix . $date . $random;
     }
     
