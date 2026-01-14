@@ -31,25 +31,17 @@ $is_super_admin = CFI_Auth::is_super_admin();
             <h3><i class="fas fa-box"></i> <?php esc_html_e('Products Management', 'chinemerem-foods'); ?></h3>
             
             <form id="cfi-admin-add-product" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem; padding: 1rem; background: var(--cfi-light); border-radius: var(--cfi-radius-sm);">
-                <div class="cfi-form-group" style="flex: 1; min-width: 150px; margin: 0;">
-                    <label for="prod-name"><?php esc_html_e('Name', 'chinemerem-foods'); ?></label>
-                    <input type="text" id="prod-name" name="name" class="cfi-input" required>
+                <div class="cfi-form-group" style="flex: 2; min-width: 180px; margin: 0;">
+                    <label for="prod-name"><?php esc_html_e('Product Name', 'chinemerem-foods'); ?></label>
+                    <input type="text" id="prod-name" name="name" class="cfi-input" placeholder="Enter product name" required>
                 </div>
-                <div class="cfi-form-group" style="flex: 1; min-width: 100px; margin: 0;">
+                <div class="cfi-form-group" style="flex: 1; min-width: 120px; margin: 0;">
                     <label for="prod-price"><?php esc_html_e('Price (₦)', 'chinemerem-foods'); ?></label>
-                    <input type="number" id="prod-price" name="price" class="cfi-input" step="0.01" required>
-                </div>
-                <div class="cfi-form-group" style="flex: 1; min-width: 100px; margin: 0;">
-                    <label for="prod-unit"><?php esc_html_e('Unit', 'chinemerem-foods'); ?></label>
-                    <input type="text" id="prod-unit" name="unit" class="cfi-input" value="unit">
-                </div>
-                <div class="cfi-form-group" style="flex: 1; min-width: 100px; margin: 0;">
-                    <label for="prod-category"><?php esc_html_e('Category', 'chinemerem-foods'); ?></label>
-                    <input type="text" id="prod-category" name="category" class="cfi-input">
+                    <input type="number" id="prod-price" name="price" class="cfi-input" step="0.01" min="0" placeholder="0.00" required>
                 </div>
                 <button type="submit" class="cfi-btn cfi-btn-success">
                     <i class="fas fa-plus"></i>
-                    <?php esc_html_e('Add', 'chinemerem-foods'); ?>
+                    <?php esc_html_e('Add Product', 'chinemerem-foods'); ?>
                 </button>
             </form>
             
@@ -59,7 +51,6 @@ $is_super_admin = CFI_Auth::is_super_admin();
                         <tr>
                             <th><?php esc_html_e('Name', 'chinemerem-foods'); ?></th>
                             <th><?php esc_html_e('Price', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('Unit', 'chinemerem-foods'); ?></th>
                             <th><?php esc_html_e('Status', 'chinemerem-foods'); ?></th>
                             <th><?php esc_html_e('Actions', 'chinemerem-foods'); ?></th>
                         </tr>
@@ -69,7 +60,6 @@ $is_super_admin = CFI_Auth::is_super_admin();
                         <tr data-id="<?php echo esc_attr($product->id); ?>">
                             <td data-label="<?php esc_attr_e('Name', 'chinemerem-foods'); ?>"><?php echo esc_html($product->name); ?></td>
                             <td data-label="<?php esc_attr_e('Price', 'chinemerem-foods'); ?>"><?php echo esc_html(CFI_Products::format_price($product->price)); ?></td>
-                            <td data-label="<?php esc_attr_e('Unit', 'chinemerem-foods'); ?>"><?php echo esc_html($product->unit); ?></td>
                             <td data-label="<?php esc_attr_e('Status', 'chinemerem-foods'); ?>"><?php echo esc_html($product->status); ?></td>
                             <td data-label="<?php esc_attr_e('Actions', 'chinemerem-foods'); ?>">
                                 <button class="cfi-btn cfi-btn-outline cfi-btn-sm cfi-edit-product" data-id="<?php echo esc_attr($product->id); ?>">
@@ -238,22 +228,23 @@ jQuery(document).ready(function($) {
     // Add Product
     $('#cfi-admin-add-product').on('submit', function(e) {
         e.preventDefault();
-        const form = $(this);
-        const btn = form.find('button[type="submit"]');
+        var form = $(this);
+        var btn = form.find('button[type="submit"]');
+        var originalText = btn.html();
         
-        btn.prop('disabled', true);
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
         
         CFI.ajax.request('add_product', {
             name: form.find('[name="name"]').val(),
-            price: form.find('[name="price"]').val(),
-            unit: form.find('[name="unit"]').val(),
-            category: form.find('[name="category"]').val()
+            price: form.find('[name="price"]').val()
         }).then(function(data) {
             CFI.toast.success(data.message);
+            form.find('[name="name"]').val('');
+            form.find('[name="price"]').val('');
             location.reload();
         }).catch(function(error) {
             CFI.toast.error(error);
-            btn.prop('disabled', false);
+            btn.prop('disabled', false).html(originalText);
         });
     });
     

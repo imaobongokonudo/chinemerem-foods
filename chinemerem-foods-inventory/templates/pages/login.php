@@ -32,7 +32,12 @@ if (is_user_logged_in()) {
             
             <div class="cfi-form-group">
                 <label for="cfi-password"><?php esc_html_e('Password', 'chinemerem-foods'); ?></label>
-                <input type="password" id="cfi-password" name="password" class="cfi-input" required>
+                <div class="cfi-password-wrapper">
+                    <input type="password" id="cfi-password" name="password" class="cfi-input" required>
+                    <button type="button" class="cfi-password-toggle" id="cfi-toggle-password" aria-label="Toggle password visibility">
+                        <i class="fas fa-eye" id="cfi-password-icon"></i>
+                    </button>
+                </div>
             </div>
             
             <div class="cfi-form-group">
@@ -54,3 +59,25 @@ if (is_user_logged_in()) {
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var toggleBtn = document.getElementById('cfi-toggle-password');
+    var passwordField = document.getElementById('cfi-password');
+    var icon = document.getElementById('cfi-password-icon');
+    
+    if (toggleBtn && passwordField && icon) {
+        toggleBtn.addEventListener('click', function() {
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    }
+});
+</script>

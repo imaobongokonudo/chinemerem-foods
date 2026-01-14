@@ -809,6 +809,42 @@ body .cfi-card-description {
     font-size: 1rem;
 }
 
+/* Password Toggle */
+.cfi-password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cfi-password-wrapper .cfi-input {
+    padding-right: 3rem;
+    width: 100%;
+}
+
+.cfi-password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.cfi-password-toggle:hover {
+    color: #0a1628;
+}
+
+.cfi-password-toggle i {
+    font-size: 1rem;
+}
+
 /* Order Table */
 .cfi-order-table .cfi-input {
     min-width: 80px;
