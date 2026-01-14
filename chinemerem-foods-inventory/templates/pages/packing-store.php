@@ -15,13 +15,10 @@ if (!defined('ABSPATH')) {
                 <?php esc_html_e('Packing Store', 'chinemerem-foods'); ?>
             </h1>
             <div class="cfi-page-actions">
-                <?php $packing_history = get_page_by_path('cfi-packing-history'); ?>
-                <?php if ($packing_history) : ?>
-                <a href="<?php echo esc_url(get_permalink($packing_history->ID)); ?>" class="cfi-btn cfi-btn-outline cfi-btn-sm">
+                <a href="<?php echo esc_url(home_url('/packing-history/')); ?>" class="cfi-btn cfi-btn-outline cfi-btn-sm">
                     <i class="fas fa-history"></i>
                     <?php esc_html_e('View History', 'chinemerem-foods'); ?>
                 </a>
-                <?php endif; ?>
             </div>
         </div>
         
@@ -38,21 +35,21 @@ if (!defined('ABSPATH')) {
         
         <div id="cfi-packing-form" class="cfi-glass">
             <div class="cfi-table-wrapper">
-                <table id="cfi-packing-table" class="cfi-table cfi-table-responsive">
+                <table id="cfi-packing-table" class="cfi-table">
                     <thead>
                         <tr>
                             <th><?php esc_html_e('Item', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('Opening', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('To Packing', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('From Packing', 'chinemerem-foods'); ?></th>
+                            <th><?php esc_html_e('Open', 'chinemerem-foods'); ?></th>
+                            <th><?php esc_html_e('To Pack', 'chinemerem-foods'); ?></th>
+                            <th><?php esc_html_e('Fr Pack', 'chinemerem-foods'); ?></th>
                             <th><?php esc_html_e('Balance', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('From Sales', 'chinemerem-foods'); ?></th>
+                            <th><?php esc_html_e('Fr Sales', 'chinemerem-foods'); ?></th>
                             <th><?php esc_html_e('To Sales', 'chinemerem-foods'); ?></th>
                             <th><?php esc_html_e('Remarks', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('Closing', 'chinemerem-foods'); ?></th>
+                            <th><?php esc_html_e('Close', 'chinemerem-foods'); ?></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="cfi-packing-tbody">
                         <!-- Populated by JavaScript -->
                     </tbody>
                 </table>
@@ -68,8 +65,8 @@ if (!defined('ABSPATH')) {
         
         <div class="cfi-info-box cfi-glass" style="margin-top: 1.5rem;">
             <h4><i class="fas fa-info-circle"></i> <?php esc_html_e('Calculation Formula', 'chinemerem-foods'); ?></h4>
-            <p><strong><?php esc_html_e('Closing', 'chinemerem-foods'); ?></strong> = Opening - To Packing + From Packing + From Sales - To Sales</p>
-            <p><em><?php esc_html_e('Note: Balance in packing store is carried over to the next day but not included in closing calculation.', 'chinemerem-foods'); ?></em></p>
+            <p style="font-size: 0.85rem;"><strong><?php esc_html_e('Close', 'chinemerem-foods'); ?></strong> = Open - To Pack + From Pack + From Sales - To Sales</p>
+            <p style="font-size: 0.8rem;"><em><?php esc_html_e('Note: Balance is carried over but not included in closing.', 'chinemerem-foods'); ?></em></p>
         </div>
     </div>
 </main>
