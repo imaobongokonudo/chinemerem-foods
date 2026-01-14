@@ -2,15 +2,40 @@
  * Chinemerem Foods Inventory - Main Styles
  * 
  * Color Scheme:
- * - Primary: #0a1628 (Deep Navy Blue)
- * - Secondary: #1e3a5f (Rich Navy Blue)
- * - Accent: #2563eb (Vibrant Blue)
+ * - Primary: #001943 (Deep Navy Blue)
  * - Background: #ffffff (White)
- * - Text: #0f172a (Dark Navy)
  */
 
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* Subtle Sparkle Animation */
+@keyframes subtle-sparkle {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes gentle-pulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(0, 25, 67, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(0, 25, 67, 0.5), 0 0 30px rgba(0, 41, 96, 0.2);
+    }
+}
+
+@keyframes text-shimmer {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
 
 :root {
     --cfi-primary: #001943 !important;
@@ -87,6 +112,24 @@ body h1, body h2, body h3, body h4, body h5, body h6,
     margin-bottom: 0.5em !important;
 }
 
+/* Subtle shimmer effect for page titles */
+.cfi-page-title h1,
+.cfi-main .cfi-page-title h1 {
+    background: linear-gradient(
+        90deg, 
+        #001943 0%, 
+        #001943 40%, 
+        #003980 50%, 
+        #001943 60%, 
+        #001943 100%
+    ) !important;
+    background-size: 200% auto !important;
+    background-clip: text !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: text-shimmer 4s linear infinite !important;
+}
+
 h1 { font-size: 2rem !important; }
 h2 { font-size: 1.75rem !important; }
 h3 { font-size: 1.5rem !important; }
@@ -149,6 +192,8 @@ body .cfi-btn,
     text-decoration: none !important;
     white-space: nowrap !important;
     line-height: 1.5 !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
 .cfi-btn:disabled {
@@ -160,29 +205,37 @@ body .cfi-btn,
 body .cfi-btn-primary,
 .cfi-main .cfi-btn-primary,
 .cfi-card .cfi-btn-primary {
-    background: #001943 !important;
-    background-color: #001943 !important;
+    background: linear-gradient(135deg, #001943 0%, #002960 50%, #001943 100%) !important;
+    background-size: 200% 200% !important;
     color: #ffffff !important;
+    animation: subtle-sparkle 3s ease infinite !important;
+    box-shadow: 0 4px 15px rgba(0, 25, 67, 0.3) !important;
 }
 
 .cfi-btn-primary:hover:not(:disabled) {
-    background: #002960 !important;
-    background-color: #002960 !important;
+    background: linear-gradient(135deg, #002960 0%, #003980 50%, #002960 100%) !important;
+    background-size: 200% 200% !important;
     color: #ffffff !important;
+    animation: gentle-pulse 2s ease infinite, subtle-sparkle 2s ease infinite !important;
+    transform: translateY(-2px) !important;
 }
 
 .cfi-btn-secondary,
 body .cfi-btn-secondary,
 .cfi-main .cfi-btn-secondary {
-    background: #001943 !important;
-    background-color: #001943 !important;
+    background: linear-gradient(135deg, #001943 0%, #002960 50%, #001943 100%) !important;
+    background-size: 200% 200% !important;
     color: #ffffff !important;
+    animation: subtle-sparkle 4s ease infinite !important;
+    box-shadow: 0 4px 15px rgba(0, 25, 67, 0.3) !important;
 }
 
 .cfi-btn-secondary:hover:not(:disabled) {
-    background: #002960 !important;
-    background-color: #002960 !important;
+    background: linear-gradient(135deg, #002960 0%, #003980 50%, #002960 100%) !important;
+    background-size: 200% 200% !important;
     color: #ffffff !important;
+    animation: gentle-pulse 2s ease infinite !important;
+    transform: translateY(-2px) !important;
 }
 
 .cfi-btn-outline,
