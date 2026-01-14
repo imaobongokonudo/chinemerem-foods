@@ -13,13 +13,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-    --cfi-primary: #0a1628 !important;
-    --cfi-primary-light: #0f2744 !important;
-    --cfi-secondary: #1e3a5f !important;
-    --cfi-secondary-light: #2d4a6f !important;
-    --cfi-accent: #2563eb !important;
-    --cfi-accent-light: #3b82f6 !important;
-    --cfi-accent-dark: #1d4ed8 !important;
+    --cfi-primary: #001943 !important;
+    --cfi-primary-light: #002960 !important;
+    --cfi-secondary: #001943 !important;
+    --cfi-secondary-light: #002960 !important;
+    --cfi-accent: #001943 !important;
+    --cfi-accent-light: #002960 !important;
+    --cfi-accent-dark: #001030 !important;
     --cfi-success: #059669 !important;
     --cfi-success-light: #10b981 !important;
     --cfi-warning: #d97706 !important;
@@ -42,8 +42,8 @@
     --cfi-radius-sm: 8px !important;
     --cfi-radius-lg: 24px !important;
     --cfi-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    --cfi-gradient-primary: linear-gradient(135deg, #0a1628 0%, #1e3a5f 100%) !important;
-    --cfi-gradient-accent: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    --cfi-gradient-primary: linear-gradient(135deg, #001943 0%, #002960 100%) !important;
+    --cfi-gradient-accent: linear-gradient(135deg, #001943 0%, #001030 100%) !important;
     --cfi-gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(241,245,249,0.9) 100%) !important;
 }
 
@@ -81,7 +81,7 @@ body .fas, body .fa, body .far, body .fab,
 h1, h2, h3, h4, h5, h6,
 body h1, body h2, body h3, body h4, body h5, body h6,
 .cfi-main h1, .cfi-main h2, .cfi-main h3 {
-    color: #0a1628 !important;
+    color: #001943 !important;
     font-weight: 700 !important;
     line-height: 1.3 !important;
     margin-bottom: 0.5em !important;
@@ -160,40 +160,40 @@ body .cfi-btn,
 body .cfi-btn-primary,
 .cfi-main .cfi-btn-primary,
 .cfi-card .cfi-btn-primary {
-    background: #2563eb !important;
-    background-color: #2563eb !important;
+    background: #001943 !important;
+    background-color: #001943 !important;
     color: #ffffff !important;
 }
 
 .cfi-btn-primary:hover:not(:disabled) {
-    background: #1e3a5f !important;
-    background-color: #1e3a5f !important;
+    background: #002960 !important;
+    background-color: #002960 !important;
     color: #ffffff !important;
 }
 
 .cfi-btn-secondary,
 body .cfi-btn-secondary,
 .cfi-main .cfi-btn-secondary {
-    background: #1e3a5f !important;
-    background-color: #1e3a5f !important;
+    background: #001943 !important;
+    background-color: #001943 !important;
     color: #ffffff !important;
 }
 
 .cfi-btn-secondary:hover:not(:disabled) {
-    background: #0a1628 !important;
-    background-color: #0a1628 !important;
+    background: #002960 !important;
+    background-color: #002960 !important;
     color: #ffffff !important;
 }
 
 .cfi-btn-outline,
 body .cfi-btn-outline {
     background: transparent !important;
-    color: #2563eb !important;
-    border: 2px solid #2563eb !important;
+    color: #001943 !important;
+    border: 2px solid #001943 !important;
 }
 
 .cfi-btn-outline:hover:not(:disabled) {
-    background: #2563eb !important;
+    background: #001943 !important;
     color: #ffffff !important;
 }
 
