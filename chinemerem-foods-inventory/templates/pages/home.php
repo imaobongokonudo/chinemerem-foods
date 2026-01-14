@@ -1,119 +1,104 @@
 <?php
 /**
- * Home/Dashboard Page Template
+ * Home/Dashboard Page Template - REBUILT FROM SCRATCH
+ * Uses inline styles for reliability
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-// Define cards directly - these will always display
-// Using only Font Awesome 6 Free solid icons that are guaranteed to work
+// Define cards with simple, reliable Font Awesome 6 Free icons
 $cards = array(
     array(
         'slug' => 'take-order',
-        'title' => __('Take Order', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-cart-shopping',
-        'description' => __('Take new customer orders with cash or transfer payment', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Take Order',
+        'icon' => 'fa fa-shopping-cart',
+        'description' => 'Take new customer orders with cash or transfer payment',
     ),
     array(
         'slug' => 'stock-record',
-        'title' => __('Stock Inventory', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-warehouse',
-        'description' => __('View and manage daily stock inventory records', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Stock Inventory',
+        'icon' => 'fa fa-warehouse',
+        'description' => 'View and manage daily stock inventory records',
     ),
     array(
         'slug' => 'packing-store',
-        'title' => __('Packing Store', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-box',
-        'description' => __('Manage packing store transfers and inventory', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Packing Store',
+        'icon' => 'fa fa-box',
+        'description' => 'Manage packing store transfers and inventory',
     ),
     array(
         'slug' => 'debtors-record',
-        'title' => __('Debtors Record', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-user-tag',
-        'description' => __('Manage debtor accounts and payments', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Debtors Record',
+        'icon' => 'fa fa-users',
+        'description' => 'Manage debtor accounts and payments',
     ),
     array(
         'slug' => 'expenses',
-        'title' => __('Expenses Record', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-receipt',
-        'description' => __('Record and track daily business expenses', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Expenses Record',
+        'icon' => 'fa fa-receipt',
+        'description' => 'Record and track daily business expenses',
     ),
     array(
         'slug' => 'import-record',
-        'title' => __('Import Record', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-truck',
-        'description' => __('Record product imports and deliveries', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Import Record',
+        'icon' => 'fa fa-truck',
+        'description' => 'Record product imports and deliveries',
     ),
     array(
         'slug' => 'not-supplied',
-        'title' => __('Not Supplied Record', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-circle-xmark',
-        'description' => __('Track orders that were not supplied', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Not Supplied Record',
+        'icon' => 'fa fa-times-circle',
+        'description' => 'Track orders that were not supplied',
     ),
     array(
         'slug' => 'supplied-today',
-        'title' => __('Supplied Today', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-circle-check',
-        'description' => __('Record products supplied today', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Supplied Today',
+        'icon' => 'fa fa-check-circle',
+        'description' => 'Record products supplied today',
     ),
     array(
         'slug' => 'order-product-summary',
-        'title' => __('Order Product Summary', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-chart-column',
-        'description' => __('View daily order product analytics', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Order Product Summary',
+        'icon' => 'fa fa-chart-bar',
+        'description' => 'View daily order product analytics',
     ),
     array(
         'slug' => 'credit-order-summary',
-        'title' => __('Credit Order Summary', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-chart-pie',
-        'description' => __('View credit order product analytics', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Credit Order Summary',
+        'icon' => 'fa fa-chart-pie',
+        'description' => 'View credit order product analytics',
     ),
     array(
         'slug' => 'cash-out',
-        'title' => __('Cash Out Record', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-money-bill-transfer',
-        'description' => __('Record cash transfers to bank accounts', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Cash Out Record',
+        'icon' => 'fa fa-money-bill',
+        'description' => 'Record cash transfers to bank accounts',
     ),
     array(
         'slug' => 'transfer-history',
-        'title' => __('Transfer History', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-right-left',
-        'description' => __('View all transfer/card payment history', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Transfer History',
+        'icon' => 'fa fa-exchange-alt',
+        'description' => 'View all transfer/card payment history',
     ),
     array(
         'slug' => 'cash-out-history',
-        'title' => __('Cash Out History', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-clock-rotate-left',
-        'description' => __('View cash out transfer history', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Cash Out History',
+        'icon' => 'fa fa-history',
+        'description' => 'View cash out transfer history',
     ),
     array(
         'slug' => 'financial-summary',
-        'title' => __('Financial Summary', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-calculator',
-        'description' => __('View daily financial summary and reports', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Financial Summary',
+        'icon' => 'fa fa-calculator',
+        'description' => 'View daily financial summary and reports',
     ),
     array(
         'slug' => 'reconciliation',
-        'title' => __('Reconciliation Calendar', 'chinemerem-foods'),
-        'icon' => 'fa-solid fa-calendar-check',
-        'description' => __('Track daily reconciliation status', 'chinemerem-foods'),
-        'color' => '#001943',
+        'title' => 'Reconciliation Calendar',
+        'icon' => 'fa fa-calendar-check',
+        'description' => 'Track daily reconciliation status',
     ),
 );
 
@@ -123,47 +108,108 @@ foreach ($cards as &$card) {
     if ($page) {
         $card['url'] = get_permalink($page->ID);
     } else {
-        // Fallback to slug-based URL
         $card['url'] = home_url('/' . $card['slug'] . '/');
     }
 }
 unset($card);
 ?>
+<style>
+.cfi-home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+.cfi-home-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 25, 67, 0.15);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: #001943;
+    box-shadow: 0 4px 20px rgba(0, 25, 67, 0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.cfi-home-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 25, 67, 0.2);
+    border-color: #001943;
+}
+.cfi-home-card-icon {
+    width: 56px;
+    height: 56px;
+    background: #001943;
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+.cfi-home-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #001943;
+    margin-bottom: 0.5rem;
+}
+.cfi-home-card-desc {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+.cfi-home-card-btn {
+    background: #001943;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+</style>
+
 <main class="cfi-main">
     <div class="cfi-container">
-        <div class="cfi-page-title">
-            <h1>
-                <i class="fa-solid fa-house"></i>
-                <?php esc_html_e('Dashboard', 'chinemerem-foods'); ?>
+        <div class="cfi-page-title" style="margin-bottom: 2rem;">
+            <h1 style="color: #001943; font-size: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fa fa-home"></i>
+                Dashboard
             </h1>
-            <span class="cfi-date-display"><?php echo esc_html(current_time('l, F j, Y')); ?></span>
+            <span style="color: #64748b; font-size: 0.95rem;"><?php echo esc_html(current_time('l, F j, Y')); ?></span>
         </div>
         
-        <div class="cfi-cards-grid">
+        <div class="cfi-home-grid">
             <?php foreach ($cards as $card) : ?>
-            <a href="<?php echo esc_url($card['url']); ?>" class="cfi-card cfi-glass">
-                <div class="cfi-card-icon" style="background: <?php echo esc_attr($card['color']); ?>;">
+            <a href="<?php echo esc_url($card['url']); ?>" class="cfi-home-card">
+                <div class="cfi-home-card-icon">
                     <i class="<?php echo esc_attr($card['icon']); ?>"></i>
                 </div>
-                <h3 class="cfi-card-title"><?php echo esc_html($card['title']); ?></h3>
-                <p class="cfi-card-description"><?php echo esc_html($card['description']); ?></p>
-                <span class="cfi-btn cfi-btn-primary cfi-btn-sm cfi-card-btn">
-                    <?php esc_html_e('Open', 'chinemerem-foods'); ?>
-                    <i class="fa-solid fa-arrow-right"></i>
+                <div class="cfi-home-card-title"><?php echo esc_html($card['title']); ?></div>
+                <div class="cfi-home-card-desc"><?php echo esc_html($card['description']); ?></div>
+                <span class="cfi-home-card-btn">
+                    Open <i class="fa fa-arrow-right"></i>
                 </span>
             </a>
             <?php endforeach; ?>
         </div>
         
         <?php if (CFI_Auth::is_cfi_admin()) : ?>
-        <div class="cfi-admin-section cfi-glass" style="margin-top: 2rem;">
-            <h3><i class="fa-solid fa-gear"></i> <?php esc_html_e('Quick Admin Actions', 'chinemerem-foods'); ?></h3>
-            <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
-                <a href="<?php echo esc_url(home_url('/admin-panel/')); ?>" class="cfi-btn cfi-btn-secondary">
-                    <i class="fa-solid fa-plus"></i>
-                    <?php esc_html_e('Manage Products', 'chinemerem-foods'); ?>
-                </a>
-            </div>
+        <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.95); border: 1px solid rgba(0,25,67,0.15); border-radius: 16px; box-shadow: 0 4px 20px rgba(0,25,67,0.1);">
+            <h3 style="color: #001943; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa fa-cog"></i> Quick Admin Actions
+            </h3>
+            <a href="<?php echo esc_url(home_url('/admin-panel/')); ?>" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #001943; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                <i class="fa fa-plus"></i>
+                Manage Products
+            </a>
         </div>
         <?php endif; ?>
     </div>

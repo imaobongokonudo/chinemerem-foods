@@ -1,8 +1,7 @@
 <?php
 /**
- * Admin Panel Page Template
- * Simplified for admin users - only product management
- * Debtors and other features are super admin only
+ * Admin Panel Page Template - REBUILT FROM SCRATCH
+ * Uses direct database insertion for reliability
  */
 
 if (!defined('ABSPATH')) {
@@ -11,11 +10,170 @@ if (!defined('ABSPATH')) {
 
 // Only admins can access this page
 if (!CFI_Auth::is_cfi_admin()) {
-    echo '<div class="cfi-main"><div class="cfi-container"><div class="cfi-glass" style="text-align: center; padding: 3rem;"><i class="fa-solid fa-lock" style="font-size: 3rem; color: var(--cfi-danger); margin-bottom: 1rem;"></i><h2>' . esc_html__('Access Denied', 'chinemerem-foods') . '</h2><p>' . esc_html__('You do not have permission to access this page.', 'chinemerem-foods') . '</p></div></div></div>';
+    echo '<div class="cfi-main"><div class="cfi-container"><div class="cfi-glass" style="text-align: center; padding: 3rem;"><i class="fa-solid fa-lock" style="font-size: 3rem; color: #dc2626; margin-bottom: 1rem;"></i><h2>Access Denied</h2><p>You do not have permission to access this page.</p></div></div></div>';
     return;
 }
 
-$products = CFI_Products::get_all('');
+// Ensure database tables exist - run on every admin panel load
+CFI_Database::create_tables();
+
+// Process form submissions directly (no AJAX - more reliable)
+$message = '';
+$message_type = '';
+
+// Add Product Form Submission
+if (isset($_POST['cfi_add_product_submit']) && wp_verify_nonce($_POST['cfi_product_nonce'], 'cfi_add_product')) {
+    $product_name = sanitize_text_field($_POST['product_name']);
+    $product_price = floatval($_POST['product_price']);
+    
+    if (empty($product_name)) {
+        $message = 'Please enter a product name';
+        $message_type = 'error';
+    } elseif ($product_price <= 0) {
+        $message = 'Please enter a valid price greater than 0';
+        $message_type = 'error';
+    } else {
+        global $wpdb;
+        $table = $wpdb->prefix . 'cfi_products';
+        
+        $result = $wpdb->insert(
+            $table,
+            array(
+                'name' => $product_name,
+                'price' => $product_price,
+                'unit' => 'unit',
+                'category' => '',
+                'status' => 'active',
+            ),
+            array('%s', '%f', '%s', '%s', '%s')
+        );
+        
+        if ($result) {
+            $message = 'Product "' . esc_html($product_name) . '" added successfully!';
+            $message_type = 'success';
+        } else {
+            $message = 'Failed to add product. Database error: ' . $wpdb->last_error;
+            $message_type = 'error';
+        }
+    }
+}
+
+// Delete Product
+if (isset($_POST['cfi_delete_product']) && wp_verify_nonce($_POST['cfi_delete_nonce'], 'cfi_delete_product')) {
+    $product_id = intval($_POST['product_id']);
+    global $wpdb;
+    $table = $wpdb->prefix . 'cfi_products';
+    
+    $result = $wpdb->update(
+        $table,
+        array('status' => 'deleted'),
+        array('id' => $product_id),
+        array('%s'),
+        array('%d')
+    );
+    
+    if ($result !== false) {
+        $message = 'Product deleted successfully';
+        $message_type = 'success';
+    } else {
+        $message = 'Failed to delete product';
+        $message_type = 'error';
+    }
+}
+
+// Edit Product
+if (isset($_POST['cfi_edit_product_submit']) && wp_verify_nonce($_POST['cfi_edit_nonce'], 'cfi_edit_product')) {
+    $product_id = intval($_POST['edit_product_id']);
+    $product_name = sanitize_text_field($_POST['edit_product_name']);
+    $product_price = floatval($_POST['edit_product_price']);
+    
+    global $wpdb;
+    $table = $wpdb->prefix . 'cfi_products';
+    
+    $result = $wpdb->update(
+        $table,
+        array('name' => $product_name, 'price' => $product_price),
+        array('id' => $product_id),
+        array('%s', '%f'),
+        array('%d')
+    );
+    
+    if ($result !== false) {
+        $message = 'Product updated successfully';
+        $message_type = 'success';
+    } else {
+        $message = 'Failed to update product';
+        $message_type = 'error';
+    }
+}
+
+// Add Debtor Form Submission
+if (isset($_POST['cfi_add_debtor_submit']) && wp_verify_nonce($_POST['cfi_debtor_nonce'], 'cfi_add_debtor')) {
+    $debtor_name = sanitize_text_field($_POST['debtor_name']);
+    $debtor_phone = sanitize_text_field($_POST['debtor_phone']);
+    
+    if (empty($debtor_name)) {
+        $message = 'Please enter a debtor name';
+        $message_type = 'error';
+    } else {
+        global $wpdb;
+        $table = $wpdb->prefix . 'cfi_debtors';
+        
+        $result = $wpdb->insert(
+            $table,
+            array(
+                'name' => $debtor_name,
+                'phone' => $debtor_phone,
+                'email' => '',
+                'address' => '',
+                'total_debt' => 0,
+                'status' => 'active',
+                'created_by' => get_current_user_id(),
+            ),
+            array('%s', '%s', '%s', '%s', '%f', '%s', '%d')
+        );
+        
+        if ($result) {
+            $message = 'Debtor "' . esc_html($debtor_name) . '" added successfully!';
+            $message_type = 'success';
+        } else {
+            $message = 'Failed to add debtor. Database error: ' . $wpdb->last_error;
+            $message_type = 'error';
+        }
+    }
+}
+
+// Delete Debtor
+if (isset($_POST['cfi_delete_debtor']) && wp_verify_nonce($_POST['cfi_debtor_delete_nonce'], 'cfi_delete_debtor')) {
+    $debtor_id = intval($_POST['debtor_id']);
+    global $wpdb;
+    $table = $wpdb->prefix . 'cfi_debtors';
+    
+    $result = $wpdb->update(
+        $table,
+        array('status' => 'deleted'),
+        array('id' => $debtor_id),
+        array('%s'),
+        array('%d')
+    );
+    
+    if ($result !== false) {
+        $message = 'Debtor deleted successfully';
+        $message_type = 'success';
+    } else {
+        $message = 'Failed to delete debtor';
+        $message_type = 'error';
+    }
+}
+
+// Fetch products and debtors
+global $wpdb;
+$products_table = $wpdb->prefix . 'cfi_products';
+$products = $wpdb->get_results("SELECT * FROM $products_table WHERE status != 'deleted' ORDER BY name ASC");
+
+$debtors_table = $wpdb->prefix . 'cfi_debtors';
+$debtors = $wpdb->get_results("SELECT * FROM $debtors_table WHERE status = 'active' ORDER BY name ASC");
+
 $is_super_admin = CFI_Auth::is_super_admin();
 ?>
 <main class="cfi-main">
@@ -23,64 +181,76 @@ $is_super_admin = CFI_Auth::is_super_admin();
         <div class="cfi-page-title">
             <h1>
                 <i class="fa-solid fa-gear"></i>
-                <?php esc_html_e('Admin Panel', 'chinemerem-foods'); ?>
+                Admin Panel
             </h1>
         </div>
         
-        <!-- Products Section - Available to all admins -->
+        <?php if ($message) : ?>
+        <div class="cfi-alert cfi-alert-<?php echo $message_type === 'success' ? 'success' : 'danger'; ?>" style="padding: 1rem; margin-bottom: 1.5rem; border-radius: 8px; background: <?php echo $message_type === 'success' ? '#dcfce7' : '#fee2e2'; ?>; color: <?php echo $message_type === 'success' ? '#166534' : '#991b1b'; ?>; border: 1px solid <?php echo $message_type === 'success' ? '#86efac' : '#fecaca'; ?>;">
+            <i class="fa-solid <?php echo $message_type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
+            <?php echo esc_html($message); ?>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Products Section -->
         <div class="cfi-admin-section cfi-glass" style="margin-bottom: 1.5rem;">
-            <h3><i class="fa-solid fa-box"></i> <?php esc_html_e('Products Management', 'chinemerem-foods'); ?></h3>
+            <h3><i class="fa-solid fa-box"></i> Products Management</h3>
             
-            <form id="cfi-admin-add-product" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem; padding: 1rem; background: var(--cfi-light); border-radius: var(--cfi-radius-sm);">
+            <form method="POST" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem; padding: 1rem; background: rgba(0,25,67,0.03); border-radius: 8px;">
+                <?php wp_nonce_field('cfi_add_product', 'cfi_product_nonce'); ?>
                 <div class="cfi-form-group" style="flex: 2; min-width: 180px; margin: 0;">
-                    <label for="prod-name"><?php esc_html_e('Product Name', 'chinemerem-foods'); ?></label>
-                    <input type="text" id="prod-name" name="name" class="cfi-input" placeholder="Enter product name" required>
+                    <label for="product_name" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #001943;">Product Name</label>
+                    <input type="text" id="product_name" name="product_name" class="cfi-input" placeholder="Enter product name" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
                 </div>
                 <div class="cfi-form-group" style="flex: 1; min-width: 120px; margin: 0;">
-                    <label for="prod-price"><?php esc_html_e('Price (₦)', 'chinemerem-foods'); ?></label>
-                    <input type="number" id="prod-price" name="price" class="cfi-input" step="0.01" min="0" placeholder="0.00" required>
+                    <label for="product_price" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #001943;">Price (₦)</label>
+                    <input type="number" id="product_price" name="product_price" class="cfi-input" step="0.01" min="0.01" placeholder="0.00" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
                 </div>
-                <button type="submit" class="cfi-btn cfi-btn-success">
+                <button type="submit" name="cfi_add_product_submit" class="cfi-btn cfi-btn-success" style="background: #001943; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
                     <i class="fa-solid fa-plus"></i>
-                    <?php esc_html_e('Add Product', 'chinemerem-foods'); ?>
+                    Add Product
                 </button>
             </form>
             
             <div class="cfi-table-wrapper">
-                <table class="cfi-table cfi-table-responsive">
+                <table class="cfi-table cfi-table-responsive" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr>
-                            <th><?php esc_html_e('Name', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('Price', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('Status', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('Actions', 'chinemerem-foods'); ?></th>
+                        <tr style="background: #001943; color: white;">
+                            <th style="padding: 0.75rem; text-align: left;">Name</th>
+                            <th style="padding: 0.75rem; text-align: left;">Price</th>
+                            <th style="padding: 0.75rem; text-align: left;">Status</th>
+                            <th style="padding: 0.75rem; text-align: left;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($products)) : ?>
                         <tr>
                             <td colspan="4" style="text-align: center; padding: 2rem;">
-                                <i class="fa-solid fa-box" style="font-size: 2rem; color: var(--cfi-gray); margin-bottom: 1rem;"></i>
-                                <p><?php esc_html_e('No products yet. Add your first product above.', 'chinemerem-foods'); ?></p>
+                                <i class="fa-solid fa-box" style="font-size: 2rem; color: #94a3b8; display: block; margin-bottom: 1rem;"></i>
+                                <p>No products yet. Add your first product above.</p>
                             </td>
                         </tr>
                         <?php else : ?>
                         <?php foreach ($products as $product) : ?>
-                        <tr data-id="<?php echo esc_attr($product->id); ?>">
-                            <td data-label="<?php esc_attr_e('Name', 'chinemerem-foods'); ?>"><?php echo esc_html($product->name); ?></td>
-                            <td data-label="<?php esc_attr_e('Price', 'chinemerem-foods'); ?>"><?php echo esc_html(CFI_Products::format_price($product->price)); ?></td>
-                            <td data-label="<?php esc_attr_e('Status', 'chinemerem-foods'); ?>">
-                                <span class="cfi-badge <?php echo $product->status === 'active' ? 'cfi-badge-success' : 'cfi-badge-danger'; ?>">
-                                    <?php echo esc_html(ucfirst($product->status)); ?>
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 0.75rem;"><?php echo esc_html($product->name); ?></td>
+                            <td style="padding: 0.75rem;">₦<?php echo number_format((float)$product->price, 2); ?></td>
+                            <td style="padding: 0.75rem;">
+                                <span style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: <?php echo $product->status === 'active' ? '#dcfce7' : '#fee2e2'; ?>; color: <?php echo $product->status === 'active' ? '#166534' : '#991b1b'; ?>;">
+                                    <?php echo ucfirst($product->status); ?>
                                 </span>
                             </td>
-                            <td data-label="<?php esc_attr_e('Actions', 'chinemerem-foods'); ?>">
-                                <button class="cfi-btn cfi-btn-outline cfi-btn-sm cfi-edit-product" data-id="<?php echo esc_attr($product->id); ?>" data-name="<?php echo esc_attr($product->name); ?>" data-price="<?php echo esc_attr($product->price); ?>">
+                            <td style="padding: 0.75rem;">
+                                <button type="button" class="cfi-edit-product" data-id="<?php echo esc_attr($product->id); ?>" data-name="<?php echo esc_attr($product->name); ?>" data-price="<?php echo esc_attr($product->price); ?>" style="background: #e2e8f0; color: #001943; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; margin-right: 0.5rem;">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
-                                <button class="cfi-btn cfi-btn-danger cfi-btn-sm cfi-delete-product" data-id="<?php echo esc_attr($product->id); ?>">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                                <form method="POST" style="display: inline;">
+                                    <?php wp_nonce_field('cfi_delete_product', 'cfi_delete_nonce'); ?>
+                                    <input type="hidden" name="product_id" value="<?php echo esc_attr($product->id); ?>">
+                                    <button type="submit" name="cfi_delete_product" onclick="return confirm('Are you sure you want to delete this product?');" style="background: #dc2626; color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer;">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -93,98 +263,86 @@ $is_super_admin = CFI_Auth::is_super_admin();
         <?php if ($is_super_admin) : ?>
         <!-- Debtors Section - Super Admin Only -->
         <div class="cfi-admin-section cfi-glass" style="margin-bottom: 1.5rem;">
-            <h3><i class="fa-solid fa-user-tag"></i> <?php esc_html_e('Debtors Management', 'chinemerem-foods'); ?> <span style="font-size: 0.75rem; color: var(--cfi-warning);">(Super Admin)</span></h3>
+            <h3><i class="fa-solid fa-user-tag"></i> Debtors Management <span style="font-size: 0.75rem; color: #f59e0b;">(Super Admin)</span></h3>
             
-            <form id="cfi-admin-add-debtor" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem; padding: 1rem; background: var(--cfi-light); border-radius: var(--cfi-radius-sm);">
+            <form method="POST" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem; padding: 1rem; background: rgba(0,25,67,0.03); border-radius: 8px;">
+                <?php wp_nonce_field('cfi_add_debtor', 'cfi_debtor_nonce'); ?>
                 <div class="cfi-form-group" style="flex: 1; min-width: 150px; margin: 0;">
-                    <label for="debtor-name"><?php esc_html_e('Name', 'chinemerem-foods'); ?></label>
-                    <input type="text" id="debtor-name" name="name" class="cfi-input" required>
+                    <label for="debtor_name" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #001943;">Name</label>
+                    <input type="text" id="debtor_name" name="debtor_name" class="cfi-input" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
                 </div>
                 <div class="cfi-form-group" style="flex: 1; min-width: 120px; margin: 0;">
-                    <label for="debtor-phone"><?php esc_html_e('Phone', 'chinemerem-foods'); ?></label>
-                    <input type="text" id="debtor-phone" name="phone" class="cfi-input">
+                    <label for="debtor_phone" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #001943;">Phone</label>
+                    <input type="text" id="debtor_phone" name="debtor_phone" class="cfi-input" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
                 </div>
-                <button type="submit" class="cfi-btn cfi-btn-success">
+                <button type="submit" name="cfi_add_debtor_submit" class="cfi-btn cfi-btn-success" style="background: #001943; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
                     <i class="fa-solid fa-user-plus"></i>
-                    <?php esc_html_e('Add Debtor', 'chinemerem-foods'); ?>
+                    Add Debtor
                 </button>
             </form>
             
-            <?php $debtors = CFI_Debtors::get_all(''); ?>
             <div class="cfi-table-wrapper">
-                <table class="cfi-table cfi-table-responsive">
+                <table class="cfi-table cfi-table-responsive" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr>
-                            <th><?php esc_html_e('Name', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('Phone', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('Debt', 'chinemerem-foods'); ?></th>
-                            <th><?php esc_html_e('Actions', 'chinemerem-foods'); ?></th>
+                        <tr style="background: #001943; color: white;">
+                            <th style="padding: 0.75rem; text-align: left;">Name</th>
+                            <th style="padding: 0.75rem; text-align: left;">Phone</th>
+                            <th style="padding: 0.75rem; text-align: left;">Debt</th>
+                            <th style="padding: 0.75rem; text-align: left;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <?php if (empty($debtors)) : ?>
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 2rem;">
+                                <p>No debtors yet.</p>
+                            </td>
+                        </tr>
+                        <?php else : ?>
                         <?php foreach ($debtors as $debtor) : ?>
-                        <tr data-id="<?php echo esc_attr($debtor->id); ?>">
-                            <td data-label="<?php esc_attr_e('Name', 'chinemerem-foods'); ?>"><?php echo esc_html($debtor->name); ?></td>
-                            <td data-label="<?php esc_attr_e('Phone', 'chinemerem-foods'); ?>"><?php echo esc_html($debtor->phone); ?></td>
-                            <td data-label="<?php esc_attr_e('Debt', 'chinemerem-foods'); ?>"><?php echo esc_html(CFI_Products::format_price($debtor->total_debt)); ?></td>
-                            <td data-label="<?php esc_attr_e('Actions', 'chinemerem-foods'); ?>">
-                                <button class="cfi-btn cfi-btn-danger cfi-btn-sm cfi-delete-debtor" data-id="<?php echo esc_attr($debtor->id); ?>">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 0.75rem;"><?php echo esc_html($debtor->name); ?></td>
+                            <td style="padding: 0.75rem;"><?php echo esc_html($debtor->phone); ?></td>
+                            <td style="padding: 0.75rem;">₦<?php echo number_format((float)$debtor->total_debt, 2); ?></td>
+                            <td style="padding: 0.75rem;">
+                                <form method="POST" style="display: inline;">
+                                    <?php wp_nonce_field('cfi_delete_debtor', 'cfi_debtor_delete_nonce'); ?>
+                                    <input type="hidden" name="debtor_id" value="<?php echo esc_attr($debtor->id); ?>">
+                                    <button type="submit" name="cfi_delete_debtor" onclick="return confirm('Delete this debtor?');" style="background: #dc2626; color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer;">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-        </div>
-        
-        <!-- Backup Section - Super Admin Only -->
-        <div class="cfi-admin-section cfi-glass" style="margin-bottom: 1.5rem;">
-            <h3><i class="fa-solid fa-database"></i> <?php esc_html_e('Backup & Restore', 'chinemerem-foods'); ?> <span style="font-size: 0.75rem; color: var(--cfi-warning);">(Super Admin)</span></h3>
-            
-            <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
-                <button type="button" id="cfi-create-full-backup" class="cfi-btn cfi-btn-primary">
-                    <i class="fa-solid fa-download"></i>
-                    <?php esc_html_e('Create Full Backup', 'chinemerem-foods'); ?>
-                </button>
-                
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <input type="file" id="cfi-restore-file" accept=".json" class="cfi-input" style="max-width: 250px;">
-                    <button type="button" id="cfi-restore-backup" class="cfi-btn cfi-btn-warning">
-                        <i class="fa-solid fa-upload"></i>
-                        <?php esc_html_e('Restore', 'chinemerem-foods'); ?>
-                    </button>
-                </div>
-            </div>
-            
-            <p class="cfi-info-box" style="padding: 1rem; background: var(--cfi-light); border-radius: var(--cfi-radius-sm);">
-                <i class="fa-solid fa-circle-info"></i>
-                <?php esc_html_e('Daily automatic backups are created at 11:00 PM.', 'chinemerem-foods'); ?>
-            </p>
         </div>
         <?php endif; ?>
     </div>
 </main>
 
 <!-- Edit Product Modal -->
-<div id="cfi-edit-product-modal" class="cfi-modal" style="display: none;">
-    <div class="cfi-modal-overlay"></div>
-    <div class="cfi-modal-content cfi-glass">
-        <h3><i class="fa-solid fa-pen"></i> <?php esc_html_e('Edit Product', 'chinemerem-foods'); ?></h3>
-        <form id="cfi-edit-product-form">
-            <input type="hidden" name="id" id="edit-prod-id">
-            <div class="cfi-form-group">
-                <label for="edit-prod-name"><?php esc_html_e('Product Name', 'chinemerem-foods'); ?></label>
-                <input type="text" id="edit-prod-name" name="name" class="cfi-input" required>
+<div id="cfi-edit-product-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; align-items: center; justify-content: center;">
+    <div class="cfi-modal-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 25, 67, 0.5);"></div>
+    <div class="cfi-modal-content cfi-glass" style="position: relative; max-width: 400px; width: 90%; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,25,67,0.2);">
+        <h3 style="color: #001943; margin-bottom: 1.5rem;"><i class="fa-solid fa-pen"></i> Edit Product</h3>
+        <form method="POST">
+            <?php wp_nonce_field('cfi_edit_product', 'cfi_edit_nonce'); ?>
+            <input type="hidden" name="edit_product_id" id="edit-prod-id">
+            <div style="margin-bottom: 1rem;">
+                <label for="edit_product_name" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #001943;">Product Name</label>
+                <input type="text" id="edit-prod-name" name="edit_product_name" class="cfi-input" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
             </div>
-            <div class="cfi-form-group">
-                <label for="edit-prod-price"><?php esc_html_e('Price (₦)', 'chinemerem-foods'); ?></label>
-                <input type="number" id="edit-prod-price" name="price" class="cfi-input" step="0.01" min="0" required>
+            <div style="margin-bottom: 1rem;">
+                <label for="edit_product_price" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #001943;">Price (₦)</label>
+                <input type="number" id="edit-prod-price" name="edit_product_price" class="cfi-input" step="0.01" min="0" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
             </div>
             <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
-                <button type="button" class="cfi-btn cfi-btn-outline cfi-modal-close"><?php esc_html_e('Cancel', 'chinemerem-foods'); ?></button>
-                <button type="submit" class="cfi-btn cfi-btn-success"><?php esc_html_e('Save Changes', 'chinemerem-foods'); ?></button>
+                <button type="button" class="cfi-modal-close" style="background: #e2e8f0; color: #001943; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+                <button type="submit" name="cfi_edit_product_submit" style="background: #001943; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save Changes</button>
             </div>
         </form>
     </div>
@@ -192,105 +350,6 @@ $is_super_admin = CFI_Auth::is_super_admin();
 
 <script>
 jQuery(document).ready(function($) {
-    // Debug - log to console if cfiData exists
-    console.log('Admin Panel Loaded');
-    console.log('cfiData available:', typeof cfiData !== 'undefined');
-    if (typeof cfiData !== 'undefined') {
-        console.log('AJAX URL:', cfiData.ajaxUrl);
-    }
-    
-    // Ensure CFI.toast exists
-    if (typeof CFI === 'undefined') {
-        window.CFI = {};
-    }
-    if (!CFI.toast) {
-        CFI.toast = {
-            success: function(msg) { alert('✓ ' + msg); },
-            error: function(msg) { alert('✗ Error: ' + msg); },
-            warning: function(msg) { alert('⚠ ' + msg); },
-            info: function(msg) { alert('ℹ ' + msg); }
-        };
-    }
-    
-    // Helper function to get AJAX URL
-    function getAjaxUrl() {
-        if (typeof cfiData !== 'undefined' && cfiData.ajaxUrl) {
-            return cfiData.ajaxUrl;
-        }
-        // Fallback to WordPress default
-        return '<?php echo admin_url('admin-ajax.php'); ?>';
-    }
-    
-    // Helper function to get nonce
-    function getNonce() {
-        if (typeof cfiData !== 'undefined' && cfiData.nonce) {
-            return cfiData.nonce;
-        }
-        // Fallback - generate inline nonce
-        return '<?php echo wp_create_nonce('cfi_nonce'); ?>';
-    }
-    
-    // Add Product
-    $('#cfi-admin-add-product').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var btn = form.find('button[type="submit"]');
-        var originalText = btn.html();
-        var productName = form.find('[name="name"]').val().trim();
-        var productPrice = parseFloat(form.find('[name="price"]').val()) || 0;
-        
-        if (!productName) {
-            CFI.toast.error('Please enter a product name');
-            return;
-        }
-        
-        if (productPrice <= 0) {
-            CFI.toast.error('Please enter a valid price');
-            return;
-        }
-        
-        btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Adding...');
-        
-        var ajaxUrl = getAjaxUrl();
-        var nonce = getNonce();
-        
-        console.log('Submitting product:', productName, productPrice);
-        console.log('AJAX URL:', ajaxUrl);
-        
-        $.ajax({
-            url: ajaxUrl,
-            type: 'POST',
-            data: {
-                action: 'cfi_add_product',
-                nonce: nonce,
-                name: productName,
-                price: productPrice
-            },
-            success: function(response) {
-                console.log('Response:', response);
-                if (response && response.success) {
-                    CFI.toast.success(response.data && response.data.message ? response.data.message : 'Product added successfully');
-                    form.find('[name="name"]').val('');
-                    form.find('[name="price"]').val('');
-                    setTimeout(function() {
-                        location.reload();
-                    }, 800);
-                } else {
-                    var errMsg = (response && response.data && response.data.message) ? response.data.message : 'Failed to add product. Check console for details.';
-                    console.error('Server error:', response);
-                    CFI.toast.error(errMsg);
-                    btn.prop('disabled', false).html(originalText);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-                console.error('Response Text:', xhr.responseText);
-                CFI.toast.error('Network error: ' + (error || 'Please try again. Check console for details.'));
-                btn.prop('disabled', false).html(originalText);
-            }
-        });
-    });
-    
     // Edit Product - Open Modal
     $(document).on('click', '.cfi-edit-product', function() {
         var id = $(this).data('id');
@@ -300,221 +359,12 @@ jQuery(document).ready(function($) {
         $('#edit-prod-id').val(id);
         $('#edit-prod-name').val(name);
         $('#edit-prod-price').val(price);
-        $('#cfi-edit-product-modal').fadeIn(200);
+        $('#cfi-edit-product-modal').css('display', 'flex');
     });
     
     // Close Modal
     $(document).on('click', '.cfi-modal-close, .cfi-modal-overlay', function() {
-        $('.cfi-modal').fadeOut(200);
+        $('#cfi-edit-product-modal').hide();
     });
-    
-    // Save Product Edit
-    $('#cfi-edit-product-form').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var btn = form.find('button[type="submit"]');
-        var originalText = btn.html();
-        
-        btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Saving...');
-        
-        $.ajax({
-            url: getAjaxUrl(),
-            type: 'POST',
-            data: {
-                action: 'cfi_update_product',
-                nonce: getNonce(),
-                id: form.find('[name="id"]').val(),
-                name: form.find('[name="name"]').val(),
-                price: form.find('[name="price"]').val()
-            },
-            success: function(response) {
-                if (response.success) {
-                    CFI.toast.success('Product updated successfully');
-                    setTimeout(function() {
-                        location.reload();
-                    }, 500);
-                } else {
-                    CFI.toast.error(response.data.message || 'Failed to update product');
-                    btn.prop('disabled', false).html(originalText);
-                }
-            },
-            error: function() {
-                CFI.toast.error('Network error');
-                btn.prop('disabled', false).html(originalText);
-            }
-        });
-    });
-    
-    // Delete Product
-    $(document).on('click', '.cfi-delete-product', function() {
-        if (!confirm('Are you sure you want to delete this product?')) return;
-        var id = $(this).data('id');
-        var row = $(this).closest('tr');
-        
-        $.ajax({
-            url: getAjaxUrl(),
-            type: 'POST',
-            data: {
-                action: 'cfi_delete_product',
-                nonce: getNonce(),
-                id: id
-            },
-            success: function(response) {
-                if (response.success) {
-                    row.fadeOut(300, function() { $(this).remove(); });
-                    CFI.toast.success('Product deleted');
-                } else {
-                    CFI.toast.error(response.data.message || 'Failed to delete');
-                }
-            },
-            error: function() {
-                CFI.toast.error('Network error');
-            }
-        });
-    });
-    
-    <?php if ($is_super_admin) : ?>
-    // Add Debtor
-    $('#cfi-admin-add-debtor').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var btn = form.find('button[type="submit"]');
-        var originalText = btn.html();
-        var debtorName = form.find('[name="name"]').val().trim();
-        var debtorPhone = form.find('[name="phone"]').val().trim();
-        
-        if (!debtorName) {
-            CFI.toast.error('Please enter debtor name');
-            return;
-        }
-        
-        btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Adding...');
-        
-        $.ajax({
-            url: getAjaxUrl(),
-            type: 'POST',
-            data: {
-                action: 'cfi_add_debtor',
-                nonce: getNonce(),
-                name: debtorName,
-                phone: debtorPhone
-            },
-            success: function(response) {
-                console.log('Debtor Response:', response);
-                if (response && response.success) {
-                    CFI.toast.success(response.data && response.data.message ? response.data.message : 'Debtor added successfully');
-                    setTimeout(function() {
-                        location.reload();
-                    }, 800);
-                } else {
-                    var errMsg = (response && response.data && response.data.message) ? response.data.message : 'Failed to add debtor';
-                    console.error('Server error:', response);
-                    CFI.toast.error(errMsg);
-                    btn.prop('disabled', false).html(originalText);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-                console.error('Response Text:', xhr.responseText);
-                CFI.toast.error('Network error: ' + (error || 'Please try again'));
-                btn.prop('disabled', false).html(originalText);
-            }
-        });
-    });
-    
-    // Delete Debtor
-    $(document).on('click', '.cfi-delete-debtor', function() {
-        if (!confirm('Delete this debtor?')) return;
-        var id = $(this).data('id');
-        var row = $(this).closest('tr');
-        
-        $.ajax({
-            url: getAjaxUrl(),
-            type: 'POST',
-            data: {
-                action: 'cfi_delete_debtor',
-                nonce: getNonce(),
-                id: id
-            },
-            success: function(response) {
-                if (response.success) {
-                    row.fadeOut();
-                    CFI.toast.success('Deleted');
-                }
-            }
-        });
-    });
-    
-    // Create Backup
-    $('#cfi-create-full-backup').on('click', function() {
-        var btn = $(this);
-        btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Creating...');
-        
-        $.ajax({
-            url: getAjaxUrl(),
-            type: 'POST',
-            data: {
-                action: 'cfi_download_backup',
-                nonce: getNonce()
-            },
-            success: function(response) {
-                if (response.success && response.data.file_url) {
-                    window.open(response.data.file_url);
-                    CFI.toast.success('Backup created');
-                }
-                btn.prop('disabled', false).html('<i class="fa-solid fa-download"></i> Create Full Backup');
-            }
-        });
-    });
-    <?php endif; ?>
 });
 </script>
-
-<style>
-/* Modal Styles */
-.cfi-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.cfi-modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 25, 67, 0.5);
-}
-
-.cfi-modal-content {
-    position: relative;
-    max-width: 400px;
-    width: 90%;
-    padding: 2rem;
-}
-
-.cfi-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.cfi-badge-success {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.cfi-badge-danger {
-    background: #fee2e2;
-    color: #991b1b;
-}
-</style>
