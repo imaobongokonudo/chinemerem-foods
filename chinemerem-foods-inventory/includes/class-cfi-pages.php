@@ -461,10 +461,44 @@ class CFI_Pages {
             $page = get_page_by_path($card['slug']);
             if ($page) {
                 $card['url'] = get_permalink($page->ID);
-                $result[] = $card;
+            } else {
+                // Fallback URL using slug directly
+                $card['url'] = home_url('/' . $card['slug'] . '/');
             }
+            $result[] = $card;
         }
         
         return $result;
+    }
+    
+    /**
+     * Recreate all pages (can be called manually if pages are missing)
+     */
+    public static function recreate_pages() {
+        $pages = self::get_pages_config();
+        $created = 0;
+        
+        foreach ($pages as $page) {
+            $existing = get_page_by_path($page['slug']);
+            
+            if (!$existing) {
+                $page_data = array(
+                    'post_title'    => $page['title'],
+                    'post_name'     => $page['slug'],
+                    'post_content'  => '[cfi_page template="' . $page['template'] . '"]',
+                    'post_status'   => 'publish',
+                    'post_type'     => 'page',
+                    'post_author'   => get_current_user_id() ? get_current_user_id() : 1,
+                    'page_template' => '',
+                );
+                
+                $result = wp_insert_post($page_data);
+                if (!is_wp_error($result)) {
+                    $created++;
+                }
+            }
+        }
+        
+        return $created;
     }
 }

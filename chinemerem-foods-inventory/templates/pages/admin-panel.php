@@ -144,7 +144,7 @@ $is_super_admin = CFI_Auth::is_super_admin();
         
         <!-- Backup Section (Super Admin Only) -->
         <?php if ($is_super_admin) : ?>
-        <div class="cfi-admin-section cfi-glass">
+        <div class="cfi-admin-section cfi-glass" style="margin-bottom: 1.5rem;">
             <h3><i class="fas fa-database"></i> <?php esc_html_e('Backup & Restore', 'chinemerem-foods'); ?></h3>
             
             <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
@@ -168,6 +168,68 @@ $is_super_admin = CFI_Auth::is_super_admin();
             </p>
         </div>
         <?php endif; ?>
+        
+        <!-- System Tools Section -->
+        <div class="cfi-admin-section cfi-glass">
+            <h3><i class="fas fa-tools"></i> <?php esc_html_e('System Tools', 'chinemerem-foods'); ?></h3>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+                <button type="button" id="cfi-recreate-pages" class="cfi-btn cfi-btn-secondary">
+                    <i class="fas fa-file-alt"></i>
+                    <?php esc_html_e('Recreate Missing Pages', 'chinemerem-foods'); ?>
+                </button>
+            </div>
+            
+            <p class="cfi-info-box" style="padding: 1rem; background: var(--cfi-light); border-radius: var(--cfi-radius-sm);">
+                <i class="fas fa-info-circle"></i>
+                <?php esc_html_e('Use "Recreate Missing Pages" if some pages are missing from your WordPress site. This will create any missing pages with the correct shortcodes.', 'chinemerem-foods'); ?>
+            </p>
+            
+            <!-- Page Shortcodes Reference -->
+            <div style="margin-top: 1.5rem;">
+                <h4 style="margin-bottom: 1rem;"><i class="fas fa-code"></i> <?php esc_html_e('Page Shortcodes Reference', 'chinemerem-foods'); ?></h4>
+                <div class="cfi-table-wrapper">
+                    <table class="cfi-table cfi-table-responsive">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e('Page', 'chinemerem-foods'); ?></th>
+                                <th><?php esc_html_e('Shortcode', 'chinemerem-foods'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td data-label="Page"><?php esc_html_e('Login', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="login"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Dashboard/Home', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="home"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Take Order', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="take-order"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Order History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="order-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Transfer History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="transfer-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Stock Record', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="stock-record"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Stock History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="stock-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Packing Store', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="packing-store"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Packing History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="packing-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Debtors Record', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="debtors-record"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Debtors History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="debtors-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Expenses', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="expenses"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Expenses History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="expenses-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Import Record', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="import-record"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Import History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="import-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Not Supplied', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="not-supplied"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Not Supplied History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="not-supplied-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Supplied Today', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="supplied-today"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Supplied Today History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="supplied-today-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Order Product Summary', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="order-product-summary"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Credit Order Summary', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="credit-order-summary"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Cash Out', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="cash-out"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Cash Out History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="cash-out-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Financial Summary', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="financial-summary"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Financial History', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="financial-history"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Reconciliation', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="reconciliation"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Admin Panel', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="admin-panel"]</code></td></tr>
+                            <tr><td data-label="Page"><?php esc_html_e('Profile', 'chinemerem-foods'); ?></td><td data-label="Shortcode"><code>[cfi_page template="profile"]</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 
@@ -264,6 +326,27 @@ jQuery(document).ready(function($) {
             .catch(function(error) {
                 CFI.toast.error(error);
                 btn.prop('disabled', false).html('<i class="fas fa-download"></i> Create Full Backup');
+            });
+    });
+    
+    // Recreate Pages
+    $('#cfi-recreate-pages').on('click', function() {
+        const btn = $(this);
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Creating Pages...');
+        
+        CFI.ajax.request('recreate_pages', {})
+            .then(function(data) {
+                CFI.toast.success(data.message);
+                btn.prop('disabled', false).html('<i class="fas fa-file-alt"></i> Recreate Missing Pages');
+                if (data.created > 0) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                }
+            })
+            .catch(function(error) {
+                CFI.toast.error(error);
+                btn.prop('disabled', false).html('<i class="fas fa-file-alt"></i> Recreate Missing Pages');
             });
     });
 });

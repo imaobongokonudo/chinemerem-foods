@@ -191,20 +191,28 @@ final class Chinemerem_Foods_Inventory {
      * Enqueue frontend scripts and styles
      */
     public function enqueue_scripts() {
+        // Google Fonts
+        wp_enqueue_style(
+            'cfi-google-fonts',
+            'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap',
+            array(),
+            null
+        );
+        
+        // Font Awesome for icons - using kit or CDN with integrity
+        wp_enqueue_style(
+            'font-awesome',
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+            array(),
+            '6.5.1'
+        );
+        
         // Main stylesheet
         wp_enqueue_style(
             'cfi-main-style',
             CFI_PLUGIN_URL . 'assets/css/main.css',
-            array(),
+            array('font-awesome'),
             CFI_VERSION
-        );
-        
-        // Font Awesome for icons
-        wp_enqueue_style(
-            'font-awesome',
-            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-            array(),
-            '6.4.0'
         );
         
         // Main JavaScript

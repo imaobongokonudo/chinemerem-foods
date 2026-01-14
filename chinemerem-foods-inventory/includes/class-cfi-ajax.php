@@ -121,6 +121,7 @@ class CFI_Ajax {
             'delete_user',
             'delete_history',
             'update_history',
+            'recreate_pages',
         );
         
         foreach ($actions as $action) {
@@ -1213,5 +1214,19 @@ class CFI_Ajax {
         } else {
             wp_send_json_error(array('message' => __('Failed to update record', 'chinemerem-foods')));
         }
+    }
+    
+    /**
+     * Recreate missing pages (admin only)
+     */
+    public function handle_recreate_pages() {
+        $this->verify_request(true);
+        
+        $created = CFI_Pages::recreate_pages();
+        
+        wp_send_json_success(array(
+            'message' => sprintf(__('%d pages created successfully', 'chinemerem-foods'), $created),
+            'created' => $created
+        ));
     }
 }

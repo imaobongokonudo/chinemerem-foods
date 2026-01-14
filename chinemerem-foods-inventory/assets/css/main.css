@@ -2,31 +2,49 @@
  * Chinemerem Foods Inventory - Main Styles
  * 
  * Color Scheme:
- * - Primary: #1a365d (Dark Navy Blue)
- * - Secondary: #2c5282 (Navy Blue)
- * - Accent: #3182ce (Blue)
+ * - Primary: #0a1628 (Deep Navy Blue)
+ * - Secondary: #1e3a5f (Rich Navy Blue)
+ * - Accent: #2563eb (Vibrant Blue)
  * - Background: #ffffff (White)
- * - Text: #1a202c (Dark Gray)
+ * - Text: #0f172a (Dark Navy)
  */
 
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 :root {
-    --cfi-primary: #1a365d;
-    --cfi-secondary: #2c5282;
-    --cfi-accent: #3182ce;
-    --cfi-success: #38a169;
-    --cfi-warning: #dd6b20;
-    --cfi-danger: #c53030;
+    --cfi-primary: #0a1628;
+    --cfi-primary-light: #0f2744;
+    --cfi-secondary: #1e3a5f;
+    --cfi-secondary-light: #2d4a6f;
+    --cfi-accent: #2563eb;
+    --cfi-accent-light: #3b82f6;
+    --cfi-accent-dark: #1d4ed8;
+    --cfi-success: #059669;
+    --cfi-success-light: #10b981;
+    --cfi-warning: #d97706;
+    --cfi-danger: #dc2626;
+    --cfi-danger-light: #ef4444;
     --cfi-white: #ffffff;
-    --cfi-light: #f7fafc;
-    --cfi-gray: #718096;
-    --cfi-dark: #1a202c;
+    --cfi-light: #f1f5f9;
+    --cfi-lighter: #f8fafc;
+    --cfi-gray: #64748b;
+    --cfi-gray-light: #94a3b8;
+    --cfi-dark: #0f172a;
     --cfi-border: #e2e8f0;
-    --cfi-shadow: rgba(26, 54, 93, 0.1);
-    --cfi-glass-bg: rgba(255, 255, 255, 0.85);
-    --cfi-glass-border: rgba(255, 255, 255, 0.18);
+    --cfi-border-dark: #cbd5e1;
+    --cfi-shadow: rgba(10, 22, 40, 0.12);
+    --cfi-shadow-lg: rgba(10, 22, 40, 0.2);
+    --cfi-glass-bg: rgba(255, 255, 255, 0.92);
+    --cfi-glass-border: rgba(30, 58, 95, 0.12);
+    --cfi-glass-shadow: 0 8px 32px rgba(10, 22, 40, 0.15), 0 0 0 1px rgba(30, 58, 95, 0.08);
     --cfi-radius: 16px;
     --cfi-radius-sm: 8px;
-    --cfi-transition: all 0.3s ease;
+    --cfi-radius-lg: 24px;
+    --cfi-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --cfi-gradient-primary: linear-gradient(135deg, #0a1628 0%, #1e3a5f 100%);
+    --cfi-gradient-accent: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    --cfi-gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(241,245,249,0.9) 100%);
 }
 
 /* Reset & Base */
