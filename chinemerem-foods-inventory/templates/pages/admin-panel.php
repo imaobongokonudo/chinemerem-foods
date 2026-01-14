@@ -111,6 +111,7 @@ if (isset($_POST['cfi_edit_product_submit']) && wp_verify_nonce($_POST['cfi_edit
 if (isset($_POST['cfi_add_debtor_submit']) && wp_verify_nonce($_POST['cfi_debtor_nonce'], 'cfi_add_debtor')) {
     $debtor_name = sanitize_text_field($_POST['debtor_name']);
     $debtor_phone = sanitize_text_field($_POST['debtor_phone']);
+    $initial_debt = floatval($_POST['debtor_initial_debt']);
     
     if (empty($debtor_name)) {
         $message = 'Please enter a debtor name';
@@ -126,7 +127,7 @@ if (isset($_POST['cfi_add_debtor_submit']) && wp_verify_nonce($_POST['cfi_debtor
                 'phone' => $debtor_phone,
                 'email' => '',
                 'address' => '',
-                'total_debt' => 0,
+                'total_debt' => $initial_debt,
                 'status' => 'active',
                 'created_by' => get_current_user_id(),
             ),
@@ -134,12 +135,71 @@ if (isset($_POST['cfi_add_debtor_submit']) && wp_verify_nonce($_POST['cfi_debtor
         );
         
         if ($result) {
-            $message = 'Debtor "' . esc_html($debtor_name) . '" added successfully!';
+            // Record initial debt as a transaction if debt > 0
+            if ($initial_debt > 0) {
+                $debtor_id = $wpdb->insert_id;
+                $trans_table = $wpdb->prefix . 'cfi_debtor_transactions';
+                $wpdb->insert(
+                    $trans_table,
+                    array(
+                        'debtor_id' => $debtor_id,
+                        'transaction_type' => 'initial',
+                        'amount' => $initial_debt,
+                        'balance_before' => 0,
+                        'balance_after' => $initial_debt,
+                        'description' => 'Initial debt balance',
+                        'staff_id' => get_current_user_id(),
+                        'transaction_date' => current_time('Y-m-d'),
+                        'transaction_time' => current_time('H:i:s')
+                    ),
+                    array('%d', '%s', '%f', '%f', '%f', '%s', '%d', '%s', '%s')
+                );
+            }
+            $message = 'Debtor "' . esc_html($debtor_name) . '" added with initial debt: ₦' . number_format($initial_debt, 2);
             $message_type = 'success';
         } else {
             $message = 'Failed to add debtor. Database error: ' . $wpdb->last_error;
             $message_type = 'error';
         }
+    }
+}
+
+// Update Debtor Debt Amount
+if (isset($_POST['cfi_update_debtor_debt']) && wp_verify_nonce($_POST['cfi_update_debt_nonce'], 'cfi_update_debtor_debt')) {
+    $debtor_id = intval($_POST['debtor_id']);
+    $new_debt = floatval($_POST['new_debt_amount']);
+    
+    global $wpdb;
+    $table = $wpdb->prefix . 'cfi_debtors';
+    $debtor = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id = %d", $debtor_id));
+    
+    if ($debtor) {
+        $old_debt = $debtor->total_debt;
+        $wpdb->update($table, array('total_debt' => $new_debt), array('id' => $debtor_id), array('%f'), array('%d'));
+        
+        // Record the adjustment
+        $trans_table = $wpdb->prefix . 'cfi_debtor_transactions';
+        $wpdb->insert(
+            $trans_table,
+            array(
+                'debtor_id' => $debtor_id,
+                'transaction_type' => 'adjustment',
+                'amount' => abs($new_debt - $old_debt),
+                'balance_before' => $old_debt,
+                'balance_after' => $new_debt,
+                'description' => 'Admin adjusted debt from ₦' . number_format($old_debt, 2) . ' to ₦' . number_format($new_debt, 2),
+                'staff_id' => get_current_user_id(),
+                'transaction_date' => current_time('Y-m-d'),
+                'transaction_time' => current_time('H:i:s')
+            ),
+            array('%d', '%s', '%f', '%f', '%f', '%s', '%d', '%s', '%s')
+        );
+        
+        $message = 'Debt updated for ' . esc_html($debtor->name);
+        $message_type = 'success';
+    } else {
+        $message = 'Debtor not found';
+        $message_type = 'error';
     }
 }
 
@@ -275,6 +335,10 @@ $is_super_admin = CFI_Auth::is_super_admin();
                     <label for="debtor_phone" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #001943;">Phone</label>
                     <input type="text" id="debtor_phone" name="debtor_phone" class="cfi-input" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
                 </div>
+                <div class="cfi-form-group" style="flex: 1; min-width: 120px; margin: 0;">
+                    <label for="debtor_initial_debt" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #001943;">Initial Debt (₦)</label>
+                    <input type="number" id="debtor_initial_debt" name="debtor_initial_debt" class="cfi-input" step="0.01" min="0" value="0" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+                </div>
                 <button type="submit" name="cfi_add_debtor_submit" class="cfi-btn cfi-btn-success" style="background: #001943; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
                     <i class="fa-solid fa-user-plus"></i>
                     Add Debtor
@@ -303,8 +367,11 @@ $is_super_admin = CFI_Auth::is_super_admin();
                         <tr style="border-bottom: 1px solid #e2e8f0;">
                             <td style="padding: 0.75rem;"><?php echo esc_html($debtor->name); ?></td>
                             <td style="padding: 0.75rem;"><?php echo esc_html($debtor->phone); ?></td>
-                            <td style="padding: 0.75rem;">₦<?php echo number_format((float)$debtor->total_debt, 2); ?></td>
+                            <td style="padding: 0.75rem; color: <?php echo $debtor->total_debt > 0 ? '#dc2626' : '#16a34a'; ?>; font-weight: 600;">₦<?php echo number_format((float)$debtor->total_debt, 2); ?></td>
                             <td style="padding: 0.75rem;">
+                                <button type="button" class="cfi-edit-debtor" data-id="<?php echo esc_attr($debtor->id); ?>" data-name="<?php echo esc_attr($debtor->name); ?>" data-debt="<?php echo esc_attr($debtor->total_debt); ?>" style="background: #f59e0b; color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; margin-right: 0.25rem;" title="Edit Debt Amount">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
                                 <form method="POST" style="display: inline;">
                                     <?php wp_nonce_field('cfi_delete_debtor', 'cfi_debtor_delete_nonce'); ?>
                                     <input type="hidden" name="debtor_id" value="<?php echo esc_attr($debtor->id); ?>">
@@ -348,6 +415,27 @@ $is_super_admin = CFI_Auth::is_super_admin();
     </div>
 </div>
 
+<!-- Edit Debtor Debt Modal -->
+<div id="cfi-edit-debtor-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; align-items: center; justify-content: center;">
+    <div class="cfi-modal-overlay-debtor" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 25, 67, 0.5);"></div>
+    <div class="cfi-modal-content cfi-glass" style="position: relative; max-width: 400px; width: 90%; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,25,67,0.2);">
+        <h3 style="color: #001943; margin-bottom: 1.5rem;"><i class="fa-solid fa-money-bill"></i> Edit Debt Amount</h3>
+        <p id="edit-debtor-name-display" style="color: #64748b; margin-bottom: 1rem;"></p>
+        <form method="POST">
+            <?php wp_nonce_field('cfi_update_debtor_debt', 'cfi_update_debt_nonce'); ?>
+            <input type="hidden" name="debtor_id" id="edit-debtor-id">
+            <div style="margin-bottom: 1rem;">
+                <label for="new_debt_amount" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #001943;">New Debt Amount (₦)</label>
+                <input type="number" id="edit-debtor-debt" name="new_debt_amount" class="cfi-input" step="0.01" min="0" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button type="button" class="cfi-modal-close-debtor" style="background: #e2e8f0; color: #001943; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+                <button type="submit" name="cfi_update_debtor_debt" style="background: #f59e0b; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Update Debt</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 jQuery(document).ready(function($) {
     // Edit Product - Open Modal
@@ -362,9 +450,24 @@ jQuery(document).ready(function($) {
         $('#cfi-edit-product-modal').css('display', 'flex');
     });
     
-    // Close Modal
+    // Edit Debtor - Open Modal
+    $(document).on('click', '.cfi-edit-debtor', function() {
+        var id = $(this).data('id');
+        var name = $(this).data('name');
+        var debt = $(this).data('debt');
+        
+        $('#edit-debtor-id').val(id);
+        $('#edit-debtor-name-display').text('Debtor: ' + name);
+        $('#edit-debtor-debt').val(debt);
+        $('#cfi-edit-debtor-modal').css('display', 'flex');
+    });
+    
+    // Close Modals
     $(document).on('click', '.cfi-modal-close, .cfi-modal-overlay', function() {
         $('#cfi-edit-product-modal').hide();
+    });
+    $(document).on('click', '.cfi-modal-close-debtor, .cfi-modal-overlay-debtor', function() {
+        $('#cfi-edit-debtor-modal').hide();
     });
 });
 </script>
