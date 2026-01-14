@@ -29,9 +29,9 @@ $cash_left = floatval($summary->cash_left ?? 0);
 <style>
 /* Financial Summary Styles - Rebuilt */
 .cfi-financial-container {
-    max-width: 900px !important;
+    max-width: 800px !important;
     margin: 0 auto !important;
-    padding: 20px !important;
+    padding: 12px !important;
 }
 
 .cfi-financial-title {
@@ -39,17 +39,17 @@ $cash_left = floatval($summary->cash_left ?? 0);
     justify-content: space-between !important;
     align-items: center !important;
     flex-wrap: wrap !important;
-    gap: 15px !important;
-    margin-bottom: 25px !important;
+    gap: 10px !important;
+    margin-bottom: 15px !important;
 }
 
 .cfi-financial-title h1 {
     color: #001943 !important;
-    font-size: 1.75rem !important;
+    font-size: 1.25rem !important;
     margin: 0 !important;
     display: flex !important;
     align-items: center !important;
-    gap: 10px !important;
+    gap: 8px !important;
 }
 
 .cfi-financial-title h1 i {
@@ -59,13 +59,13 @@ $cash_left = floatval($summary->cash_left ?? 0);
 .cfi-history-btn {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 6px !important;
-    padding: 8px 16px !important;
+    gap: 4px !important;
+    padding: 6px 12px !important;
     background: #001943 !important;
     color: white !important;
     text-decoration: none !important;
-    border-radius: 8px !important;
-    font-size: 0.9rem !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
     transition: all 0.3s ease !important;
 }
 
@@ -77,17 +77,17 @@ $cash_left = floatval($summary->cash_left ?? 0);
 
 .cfi-financial-card {
     background: rgba(255, 255, 255, 0.95) !important;
-    border-radius: 16px !important;
-    padding: 25px !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
     box-shadow: 0 8px 32px rgba(0, 25, 67, 0.15), 0 0 0 1px rgba(0, 25, 67, 0.1) !important;
     border: 2px solid rgba(0, 25, 67, 0.1) !important;
 }
 
 .cfi-financial-card h3 {
     color: #001943 !important;
-    font-size: 1.2rem !important;
-    margin: 0 0 20px 0 !important;
-    padding-bottom: 15px !important;
+    font-size: 0.95rem !important;
+    margin: 0 0 12px 0 !important;
+    padding-bottom: 10px !important;
     border-bottom: 2px solid rgba(0, 25, 67, 0.1) !important;
 }
 
@@ -101,10 +101,10 @@ $cash_left = floatval($summary->cash_left ?? 0);
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    padding: 15px !important;
+    padding: 8px 12px !important;
     border-bottom: 1px solid rgba(0, 25, 67, 0.1) !important;
     flex-wrap: wrap !important;
-    gap: 10px !important;
+    gap: 6px !important;
 }
 
 .cfi-financial-row:nth-child(odd) {
@@ -118,32 +118,32 @@ $cash_left = floatval($summary->cash_left ?? 0);
 .cfi-financial-label {
     display: flex !important;
     align-items: center !important;
-    gap: 10px !important;
+    gap: 6px !important;
     color: #001943 !important;
     font-weight: 600 !important;
-    font-size: 0.95rem !important;
+    font-size: 0.75rem !important;
     flex: 1 !important;
-    min-width: 200px !important;
+    min-width: 150px !important;
 }
 
 .cfi-financial-label i {
-    width: 30px !important;
-    height: 30px !important;
+    width: 22px !important;
+    height: 22px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     background: #001943 !important;
     color: white !important;
-    border-radius: 8px !important;
-    font-size: 0.85rem !important;
+    border-radius: 6px !important;
+    font-size: 0.65rem !important;
 }
 
 .cfi-financial-value {
-    font-size: 1.1rem !important;
+    font-size: 0.85rem !important;
     font-weight: 700 !important;
     color: #001943 !important;
     text-align: right !important;
-    min-width: 120px !important;
+    min-width: 90px !important;
 }
 
 .cfi-financial-value.positive {
@@ -156,11 +156,11 @@ $cash_left = floatval($summary->cash_left ?? 0);
 
 .cfi-financial-value.muted {
     color: #6b7280 !important;
-    font-size: 0.9rem !important;
+    font-size: 0.75rem !important;
 }
 
 .cfi-financial-value.highlight {
-    font-size: 1.25rem !important;
+    font-size: 0.95rem !important;
     color: #001943 !important;
 }
 
@@ -173,11 +173,11 @@ $cash_left = floatval($summary->cash_left ?? 0);
 }
 
 .cfi-financial-input {
-    width: 140px !important;
-    padding: 10px 12px !important;
+    width: 100px !important;
+    padding: 6px 8px !important;
     border: 2px solid rgba(0, 25, 67, 0.2) !important;
-    border-radius: 8px !important;
-    font-size: 1rem !important;
+    border-radius: 6px !important;
+    font-size: 0.8rem !important;
     font-weight: 600 !important;
     text-align: right !important;
     background: white !important;
@@ -192,16 +192,16 @@ $cash_left = floatval($summary->cash_left ?? 0);
 }
 
 .cfi-save-btn {
-    padding: 10px 16px !important;
+    padding: 6px 12px !important;
     background: #001943 !important;
     color: white !important;
     border: none !important;
-    border-radius: 8px !important;
+    border-radius: 6px !important;
     cursor: pointer !important;
-    font-size: 0.9rem !important;
+    font-size: 0.75rem !important;
     display: flex !important;
     align-items: center !important;
-    gap: 6px !important;
+    gap: 4px !important;
     transition: all 0.3s ease !important;
 }
 
@@ -219,71 +219,71 @@ $cash_left = floatval($summary->cash_left ?? 0);
 /* Cash Left Footer */
 .cfi-cash-left-row {
     background: linear-gradient(135deg, #10b981, #059669) !important;
-    border-radius: 12px !important;
-    margin-top: 20px !important;
-    padding: 20px 25px !important;
+    border-radius: 10px !important;
+    margin-top: 12px !important;
+    padding: 12px 16px !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
     flex-wrap: wrap !important;
-    gap: 10px !important;
+    gap: 8px !important;
 }
 
 .cfi-cash-left-label {
     display: flex !important;
     align-items: center !important;
-    gap: 10px !important;
+    gap: 6px !important;
     color: white !important;
-    font-size: 1.1rem !important;
+    font-size: 0.85rem !important;
     font-weight: 700 !important;
 }
 
 .cfi-cash-left-label i {
-    font-size: 1.5rem !important;
+    font-size: 1.1rem !important;
 }
 
 .cfi-cash-left-value {
-    font-size: 1.75rem !important;
+    font-size: 1.25rem !important;
     font-weight: 800 !important;
     color: white !important;
 }
 
 /* Formula Box */
 .cfi-formula-box {
-    margin-top: 20px !important;
-    padding: 15px 20px !important;
+    margin-top: 12px !important;
+    padding: 10px 14px !important;
     background: rgba(0, 25, 67, 0.05) !important;
-    border-radius: 12px !important;
-    border-left: 4px solid #001943 !important;
+    border-radius: 10px !important;
+    border-left: 3px solid #001943 !important;
 }
 
 .cfi-formula-box h4 {
     display: flex !important;
     align-items: center !important;
-    gap: 8px !important;
+    gap: 6px !important;
     color: #001943 !important;
-    margin: 0 0 10px 0 !important;
-    font-size: 1rem !important;
+    margin: 0 0 6px 0 !important;
+    font-size: 0.8rem !important;
 }
 
 .cfi-formula-box p {
     color: #4b5563 !important;
     margin: 0 !important;
-    font-size: 0.9rem !important;
-    line-height: 1.6 !important;
+    font-size: 0.7rem !important;
+    line-height: 1.5 !important;
 }
 
 /* Refresh indicator */
 .cfi-refresh-indicator {
     display: flex !important;
     align-items: center !important;
-    gap: 8px !important;
-    padding: 8px 16px !important;
+    gap: 6px !important;
+    padding: 6px 12px !important;
     background: rgba(16, 185, 129, 0.1) !important;
     color: #10b981 !important;
-    border-radius: 8px !important;
-    font-size: 0.85rem !important;
-    margin-bottom: 15px !important;
+    border-radius: 6px !important;
+    font-size: 0.7rem !important;
+    margin-bottom: 10px !important;
 }
 
 /* Mobile Responsive */
