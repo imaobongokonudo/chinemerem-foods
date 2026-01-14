@@ -172,12 +172,25 @@ class CFI_Ajax {
             wp_send_json_error(array('message' => __('Product name is required', 'chinemerem-foods')));
         }
         
+        if ($price <= 0) {
+            wp_send_json_error(array('message' => __('Price must be greater than 0', 'chinemerem-foods')));
+        }
+        
         $result = CFI_Products::add($name, $price, $unit, $category);
         
         if ($result) {
-            wp_send_json_success(array('message' => __('Product added successfully', 'chinemerem-foods')));
+            wp_send_json_success(array(
+                'message' => __('Product added successfully', 'chinemerem-foods'),
+                'product_id' => $result
+            ));
         } else {
-            wp_send_json_error(array('message' => __('Failed to add product', 'chinemerem-foods')));
+            global $wpdb;
+            $db_error = $wpdb->last_error;
+            $error_message = __('Failed to add product', 'chinemerem-foods');
+            if (!empty($db_error)) {
+                error_log('CFI Add Product DB Error: ' . $db_error);
+            }
+            wp_send_json_error(array('message' => $error_message));
         }
     }
     
@@ -453,8 +466,16 @@ class CFI_Ajax {
         $result = CFI_Debtors::add($name, $phone, $email, $address);
         
         if ($result) {
-            wp_send_json_success(array('message' => __('Debtor added successfully', 'chinemerem-foods')));
+            wp_send_json_success(array(
+                'message' => __('Debtor added successfully', 'chinemerem-foods'),
+                'debtor_id' => $result
+            ));
         } else {
+            global $wpdb;
+            $db_error = $wpdb->last_error;
+            if (!empty($db_error)) {
+                error_log('CFI Add Debtor DB Error: ' . $db_error);
+            }
             wp_send_json_error(array('message' => __('Failed to add debtor', 'chinemerem-foods')));
         }
     }

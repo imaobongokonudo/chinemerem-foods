@@ -192,6 +192,19 @@ $is_super_admin = CFI_Auth::is_super_admin();
 
 <script>
 jQuery(document).ready(function($) {
+    // Ensure CFI.toast exists
+    if (typeof CFI === 'undefined') {
+        window.CFI = {};
+    }
+    if (!CFI.toast) {
+        CFI.toast = {
+            success: function(msg) { alert('Success: ' + msg); },
+            error: function(msg) { alert('Error: ' + msg); },
+            warning: function(msg) { alert('Warning: ' + msg); },
+            info: function(msg) { alert('Info: ' + msg); }
+        };
+    }
+    
     // Add Product
     $('#cfi-admin-add-product').on('submit', function(e) {
         e.preventDefault();
@@ -199,19 +212,26 @@ jQuery(document).ready(function($) {
         var btn = form.find('button[type="submit"]');
         var originalText = btn.html();
         var productName = form.find('[name="name"]').val().trim();
-        var productPrice = form.find('[name="price"]').val();
+        var productPrice = parseFloat(form.find('[name="price"]').val()) || 0;
         
         if (!productName) {
             CFI.toast.error('Please enter a product name');
             return;
         }
         
-        if (!productPrice || productPrice <= 0) {
+        if (productPrice <= 0) {
             CFI.toast.error('Please enter a valid price');
             return;
         }
         
         btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Adding...');
+        
+        // Check if cfiData exists
+        if (typeof cfiData === 'undefined') {
+            CFI.toast.error('System error: cfiData not found. Please refresh the page.');
+            btn.prop('disabled', false).html(originalText);
+            return;
+        }
         
         $.ajax({
             url: cfiData.ajaxUrl,
@@ -223,20 +243,22 @@ jQuery(document).ready(function($) {
                 price: productPrice
             },
             success: function(response) {
-                if (response.success) {
-                    CFI.toast.success(response.data.message || 'Product added successfully');
+                if (response && response.success) {
+                    CFI.toast.success(response.data && response.data.message ? response.data.message : 'Product added successfully');
                     form.find('[name="name"]').val('');
                     form.find('[name="price"]').val('');
                     setTimeout(function() {
                         location.reload();
-                    }, 500);
+                    }, 800);
                 } else {
-                    CFI.toast.error(response.data.message || 'Failed to add product');
+                    var errMsg = (response && response.data && response.data.message) ? response.data.message : 'Failed to add product';
+                    CFI.toast.error(errMsg);
                     btn.prop('disabled', false).html(originalText);
                 }
             },
             error: function(xhr, status, error) {
-                CFI.toast.error('Network error. Please try again.');
+                console.error('AJAX Error:', status, error, xhr.responseText);
+                CFI.toast.error('Network error: ' + (error || 'Please try again'));
                 btn.prop('disabled', false).html(originalText);
             }
         });
@@ -330,8 +352,23 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         var form = $(this);
         var btn = form.find('button[type="submit"]');
+        var originalText = btn.html();
+        var debtorName = form.find('[name="name"]').val().trim();
+        var debtorPhone = form.find('[name="phone"]').val().trim();
         
-        btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>');
+        if (!debtorName) {
+            CFI.toast.error('Please enter debtor name');
+            return;
+        }
+        
+        btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Adding...');
+        
+        // Check if cfiData exists
+        if (typeof cfiData === 'undefined') {
+            CFI.toast.error('System error: cfiData not found. Please refresh the page.');
+            btn.prop('disabled', false).html(originalText);
+            return;
+        }
         
         $.ajax({
             url: cfiData.ajaxUrl,
@@ -339,17 +376,25 @@ jQuery(document).ready(function($) {
             data: {
                 action: 'cfi_add_debtor',
                 nonce: cfiData.nonce,
-                name: form.find('[name="name"]').val(),
-                phone: form.find('[name="phone"]').val()
+                name: debtorName,
+                phone: debtorPhone
             },
             success: function(response) {
-                if (response.success) {
-                    CFI.toast.success('Debtor added');
-                    location.reload();
+                if (response && response.success) {
+                    CFI.toast.success(response.data && response.data.message ? response.data.message : 'Debtor added successfully');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 800);
                 } else {
-                    CFI.toast.error(response.data.message || 'Failed');
-                    btn.prop('disabled', false).html('<i class="fa-solid fa-user-plus"></i> Add Debtor');
+                    var errMsg = (response && response.data && response.data.message) ? response.data.message : 'Failed to add debtor';
+                    CFI.toast.error(errMsg);
+                    btn.prop('disabled', false).html(originalText);
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', status, error, xhr.responseText);
+                CFI.toast.error('Network error: ' + (error || 'Please try again'));
+                btn.prop('disabled', false).html(originalText);
             }
         });
     });

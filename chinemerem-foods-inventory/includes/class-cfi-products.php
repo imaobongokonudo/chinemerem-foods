@@ -62,10 +62,28 @@ class CFI_Products {
         );
         
         if ($result) {
-            // Initialize stock record for today
+            // Initialize stock record for today (if stock table exists)
             $product_id = $wpdb->insert_id;
-            CFI_Stock::initialize_product($product_id);
-            CFI_Packing::initialize_product($product_id);
+            
+            // Try to initialize stock, but don't fail if it doesn't work
+            try {
+                if (class_exists('CFI_Stock') && method_exists('CFI_Stock', 'initialize_product')) {
+                    CFI_Stock::initialize_product($product_id);
+                }
+            } catch (Exception $e) {
+                // Log error but don't fail the product creation
+                error_log('CFI: Stock initialization failed for product ' . $product_id . ': ' . $e->getMessage());
+            }
+            
+            // Try to initialize packing, but don't fail if it doesn't work
+            try {
+                if (class_exists('CFI_Packing') && method_exists('CFI_Packing', 'initialize_product')) {
+                    CFI_Packing::initialize_product($product_id);
+                }
+            } catch (Exception $e) {
+                // Log error but don't fail the product creation
+                error_log('CFI: Packing initialization failed for product ' . $product_id . ': ' . $e->getMessage());
+            }
             
             return $product_id;
         }

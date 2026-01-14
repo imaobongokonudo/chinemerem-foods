@@ -45,7 +45,7 @@ class CFI_Debtors {
         global $wpdb;
         $table = CFI_Database::get_table('debtors');
         
-        return $wpdb->insert(
+        $result = $wpdb->insert(
             $table,
             array(
                 'name' => $name,
@@ -58,6 +58,12 @@ class CFI_Debtors {
             ),
             array('%s', '%s', '%s', '%s', '%f', '%s', '%d')
         );
+        
+        if ($result) {
+            return $wpdb->insert_id;
+        }
+        
+        return false;
     }
     
     /**
