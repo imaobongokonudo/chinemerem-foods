@@ -44,6 +44,7 @@ class CFI_Database {
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             order_number varchar(50) NOT NULL,
             order_type varchar(20) NOT NULL DEFAULT 'cash',
+            customer_name varchar(255) DEFAULT '',
             total_quantity decimal(15,2) NOT NULL DEFAULT 0.00,
             total_amount decimal(15,2) NOT NULL DEFAULT 0.00,
             discount_amount decimal(15,2) NOT NULL DEFAULT 0.00,
@@ -68,6 +69,13 @@ class CFI_Database {
             KEY debtor_id (debtor_id)
         ) $charset_collate;";
         dbDelta($sql_orders);
+        
+        // Add customer_name column if it doesn't exist
+        $table = $wpdb->prefix . 'cfi_orders';
+        $row = $wpdb->get_results("SHOW COLUMNS FROM `$table` LIKE 'customer_name'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE `$table` ADD COLUMN `customer_name` varchar(255) DEFAULT '' AFTER `order_type`");
+        }
         
         // Order items table
         $table_order_items = $wpdb->prefix . 'cfi_order_items';
@@ -353,6 +361,7 @@ class CFI_Database {
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             source varchar(50) NOT NULL,
             source_id bigint(20) UNSIGNED NOT NULL,
+            customer_name varchar(255) DEFAULT '',
             amount decimal(15,2) NOT NULL DEFAULT 0.00,
             bank_name varchar(100) NOT NULL,
             transfer_date date NOT NULL,
@@ -365,6 +374,13 @@ class CFI_Database {
         ) $charset_collate;";
         dbDelta($sql_transfers);
         
+        // Add customer_name column to transfers if it doesn't exist
+        $transfers_tbl = $wpdb->prefix . 'cfi_transfer_history';
+        $row = $wpdb->get_results("SHOW COLUMNS FROM `$transfers_tbl` LIKE 'customer_name'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE `$transfers_tbl` ADD COLUMN `customer_name` varchar(255) DEFAULT '' AFTER `source_id`");
+        }
+        
         // Reconciliation table
         $table_reconciliation = $wpdb->prefix . 'cfi_reconciliation';
         $sql_reconciliation = "CREATE TABLE IF NOT EXISTS $table_reconciliation (
@@ -372,8 +388,10 @@ class CFI_Database {
             reconcile_date date NOT NULL,
             admin1_id bigint(20) UNSIGNED DEFAULT NULL,
             admin1_time datetime DEFAULT NULL,
+            admin1_remarks text DEFAULT '',
             admin2_id bigint(20) UNSIGNED DEFAULT NULL,
             admin2_time datetime DEFAULT NULL,
+            admin2_remarks text DEFAULT '',
             is_complete tinyint(1) DEFAULT 0,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -381,6 +399,32 @@ class CFI_Database {
             UNIQUE KEY reconcile_date (reconcile_date)
         ) $charset_collate;";
         dbDelta($sql_reconciliation);
+        
+        // Add remarks columns if they don't exist
+        $recon_table = $wpdb->prefix . 'cfi_reconciliation';
+        $row = $wpdb->get_results("SHOW COLUMNS FROM `$recon_table` LIKE 'admin1_remarks'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE `$recon_table` ADD COLUMN `admin1_remarks` text DEFAULT '' AFTER `admin1_time`");
+            $wpdb->query("ALTER TABLE `$recon_table` ADD COLUMN `admin2_remarks` text DEFAULT '' AFTER `admin2_time`");
+        }
+        
+        // Reconciliation history table
+        $table_reconciliation_history = $wpdb->prefix . 'cfi_reconciliation_history';
+        $sql_reconciliation_history = "CREATE TABLE IF NOT EXISTS $table_reconciliation_history (
+            id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            reconcile_date date NOT NULL,
+            admin1_id bigint(20) UNSIGNED DEFAULT NULL,
+            admin1_time datetime DEFAULT NULL,
+            admin1_remarks text DEFAULT '',
+            admin2_id bigint(20) UNSIGNED DEFAULT NULL,
+            admin2_time datetime DEFAULT NULL,
+            admin2_remarks text DEFAULT '',
+            status varchar(50) DEFAULT 'completed',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY reconcile_date (reconcile_date)
+        ) $charset_collate;";
+        dbDelta($sql_reconciliation_history);
         
         // Backup log table
         $table_backup = $wpdb->prefix . 'cfi_backup_log';

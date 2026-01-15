@@ -14,6 +14,7 @@ CFI_Database::create_tables();
 $is_admin = CFI_Auth::is_cfi_admin();
 $message = '';
 $message_type = '';
+$receipt_data = null;
 
 // Process Take Order Form
 if (isset($_POST['cfi_debtor_order_submit']) && wp_verify_nonce($_POST['cfi_debtor_order_nonce'], 'cfi_debtor_order')) {
@@ -112,6 +113,21 @@ if (isset($_POST['cfi_debtor_order_submit']) && wp_verify_nonce($_POST['cfi_debt
                         'transaction_time' => current_time('H:i:s')
                     ),
                     array('%d', '%s', '%d', '%f', '%f', '%f', '%s', '%d', '%s', '%s')
+                );
+                
+                // Update financial summary
+                CFI_Financial::update_daily_summary(current_time('Y-m-d'));
+                
+                // Prepare receipt data for printing
+                $receipt_data = array(
+                    'order_number' => $order_number,
+                    'date' => current_time('d/m/Y'),
+                    'time' => current_time('H:i'),
+                    'debtor_name' => $debtor->name,
+                    'items' => $order_items,
+                    'total' => $total_amount,
+                    'new_balance' => $new_balance,
+                    'staff' => wp_get_current_user()->display_name
                 );
                 
                 $message = 'Order added to ' . esc_html($debtor->name) . '\'s debt. New balance: ₦' . number_format($new_balance, 2);
@@ -527,5 +543,84 @@ $selected_debtor = $selected_debtor_id ? CFI_Debtors::get($selected_debtor_id) :
     <?php endif; ?>
     <?php endif; ?>
 </main>
+
+<?php if ($receipt_data) : ?>
+<!-- Receipt Modal -->
+<div class="receipt-modal" id="receipt-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;">
+    <div style="background: white; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 25px 50px rgba(0,0,0,0.3);">
+        <div style="background: #001943; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;"><i class="fas fa-receipt"></i> Credit Receipt</h3>
+            <button onclick="closeReceipt()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+        <div id="receipt-print-area" style="padding: 1.5rem;">
+            <div style="text-align: center; margin-bottom: 1rem; border-bottom: 2px dashed #e2e8f0; padding-bottom: 1rem;">
+                <h2 style="color: #001943; margin: 0 0 0.25rem 0;">Chinemerem Foods</h2>
+                <p style="color: #64748b; font-size: 0.8rem; margin: 0;">Credit Order Receipt</p>
+            </div>
+            
+            <div style="margin-bottom: 1rem; font-size: 0.85rem;">
+                <p style="margin: 0.25rem 0; display: flex; justify-content: space-between;"><span>Order #:</span> <strong><?php echo esc_html($receipt_data['order_number']); ?></strong></p>
+                <p style="margin: 0.25rem 0; display: flex; justify-content: space-between;"><span>Date:</span> <?php echo esc_html($receipt_data['date']); ?></p>
+                <p style="margin: 0.25rem 0; display: flex; justify-content: space-between;"><span>Time:</span> <?php echo esc_html($receipt_data['time']); ?></p>
+                <p style="margin: 0.25rem 0; display: flex; justify-content: space-between;"><span>Debtor:</span> <strong style="color: #dc2626;"><?php echo esc_html($receipt_data['debtor_name']); ?></strong></p>
+                <p style="margin: 0.25rem 0; display: flex; justify-content: space-between;"><span>Staff:</span> <?php echo esc_html($receipt_data['staff']); ?></p>
+            </div>
+            
+            <div style="border-top: 1px dashed #e2e8f0; border-bottom: 1px dashed #e2e8f0; padding: 0.5rem 0; margin: 0.5rem 0;">
+                <div style="display: flex; justify-content: space-between; padding: 0.25rem 0; font-weight: 600; font-size: 0.75rem; border-bottom: 1px solid #e2e8f0; margin-bottom: 0.25rem;">
+                    <span style="flex: 1;">Item</span>
+                    <span style="width: 40px; text-align: center;">Qty</span>
+                    <span style="width: 80px; text-align: right;">Amount</span>
+                </div>
+                <?php foreach ($receipt_data['items'] as $item) : ?>
+                <div style="display: flex; justify-content: space-between; padding: 0.25rem 0; font-size: 0.8rem;">
+                    <span style="flex: 1;"><?php echo esc_html($item['product_name']); ?></span>
+                    <span style="width: 40px; text-align: center;"><?php echo esc_html($item['quantity']); ?></span>
+                    <span style="width: 80px; text-align: right; font-weight: 600;">₦<?php echo number_format($item['total'], 0); ?></span>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                <p style="display: flex; justify-content: space-between; margin: 0.25rem 0; font-size: 1.1rem; font-weight: 700; color: #001943; border-top: 2px solid #001943; padding-top: 0.5rem; margin-top: 0.5rem;">
+                    <span>Order Total:</span>
+                    <span>₦<?php echo number_format($receipt_data['total'], 0); ?></span>
+                </p>
+                <p style="display: flex; justify-content: space-between; margin: 0.25rem 0; color: #dc2626; font-weight: 600;">
+                    <span>New Balance:</span>
+                    <span>₦<?php echo number_format($receipt_data['new_balance'], 0); ?></span>
+                </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 1rem; padding-top: 1rem; border-top: 2px dashed #e2e8f0; font-size: 0.75rem; color: #64748b;">
+                <p style="margin: 0;">This is a credit order</p>
+                <p style="margin: 0;">Payment pending</p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; padding: 1rem; background: #f1f5f9;">
+            <button onclick="printReceipt()" class="cfi-btn cfi-btn-primary" style="flex: 1; justify-content: center; background: #7c3aed;">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <button onclick="closeReceipt()" class="cfi-btn cfi-btn-success" style="flex: 1; justify-content: center;">
+                <i class="fas fa-check"></i> Done
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+function printReceipt() {
+    var printContents = document.getElementById('receipt-print-area').innerHTML;
+    var originalContents = document.body.innerHTML;
+    document.body.innerHTML = '<div style="width: 80mm; margin: 0 auto; font-family: Arial, sans-serif; font-size: 12px;">' + printContents + '</div>';
+    window.print();
+    document.body.innerHTML = originalContents;
+    location.reload();
+}
+function closeReceipt() {
+    document.getElementById('receipt-modal').style.display = 'none';
+}
+</script>
+<?php endif; ?>
+
 </body>
 </html>
